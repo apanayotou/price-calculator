@@ -72,13 +72,13 @@
 <script>
 var ALL_DATA = {
   ES: [
-    { district:"Malaga", price_elite:NaN, price_elite_plus:NaN, price_elp_3m:NaN },
-    { district:"Ibiza", price_elite:NaN, price_elite_plus:NaN, price_elp_3m:NaN },
-    { district:"Alicante", price_elite:NaN, price_elite_plus:NaN, price_elp_3m:NaN },
-    { district:"Barcelona", price_elite:NaN, price_elite_plus:NaN, price_elp_3m:NaN },
-    { district:"Mallorca", price_elite:NaN, price_elite_plus:NaN, price_elp_3m:NaN },
-    { district:"Madrid", price_elite:NaN, price_elite_plus:NaN, price_elp_3m:NaN },
-    { district:"Other", price_elite:NaN, price_elite_plus:NaN, price_elp_3m:NaN },
+    { district:"Malaga", price_elite:0, price_elite_plus:0, price_elp_3m:0 },
+    { district:"Ibiza", price_elite:0, price_elite_plus:0, price_elp_3m:0 },
+    { district:"Alicante", price_elite:0, price_elite_plus:0, price_elp_3m:0 },
+    { district:"Barcelona", price_elite:0, price_elite_plus:0, price_elp_3m:0 },
+    { district:"Mallorca", price_elite:0, price_elite_plus:0, price_elp_3m:0 },
+    { district:"Madrid", price_elite:0, price_elite_plus:0, price_elp_3m:0 },
+    { district:"Other", price_elite:0, price_elite_plus:0, price_elp_3m:0 },
   ],
 };
 
@@ -100,8 +100,8 @@ function psych(v) {
   return Math.round(v / 500) * 500 - 1;
 }
 
-function fmt(v) { return "€" + v.toLocaleString("en-US"); }
-function fmtDec(v) { return "€" + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+function fmt(v) { return "\u20AC" + v.toLocaleString("en-US"); }
+function fmtDec(v) { return "\u20AC" + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
 
 var $location = document.getElementById("location");
 var $tier = document.getElementById("tier");
