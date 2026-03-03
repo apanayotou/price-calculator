@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Price Calculator - Spanish 2026</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #F7F7F5; color: #1A1A1A; }
+  .header { background: #fff; border-bottom: 1px solid #E5E5E5; padding: 16px 32px; display: flex; align-items: center; position: sticky; top: 0; z-index: 10; }
+  .header h1 { font-size: 20px; font-weight: 700; }
+  .header .meta { font-size: 11px; color: #999; margin-left: auto; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+  .inputs { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; background: #fff; border-radius: 8px; padding: 24px; margin-bottom: 24px; border: 1px solid #E5E5E5; }
+  @media (max-width: 700px) { .inputs { grid-template-columns: 1fr 1fr; } }
+  .inputs label { font-size: 12px; font-weight: 600; color: #444; margin-bottom: 6px; display: block; letter-spacing: 0.03em; }
+  .inputs select { width: 100%; padding: 8px 12px; border: 1px solid #E5E5E5; border-radius: 4px; font-size: 14px; font-family: inherit; background: #fff; color: #1A1A1A; cursor: pointer; outline: none; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+  @media (max-width: 700px) { .cards { grid-template-columns: 1fr; } }
+  .card-head { background: #fff; border-top-left-radius: 8px; border-top-right-radius: 8px; padding: 20px 24px; }
+  .card-head.elite { border: 1px solid #E5E5E5; }
+  .card-head.ep { border: 1px solid #E5E5E5; position: relative; background: #FFFDF5; }
+  .card-head h2 { font-size: 22px; font-weight: 700; }
+  .card-head .sub { font-size: 13px; color: #999; margin-top: 4px; }
+  .card-head .elp-info { font-size: 13px; color: #1B7B6E; font-weight: 600; margin-top: 2px; }
+  .card-head .elp-info span { font-weight: 400; color: #999; }
+  .badge-rec { position: absolute; top: 12px; right: 12px; background: #E8B54D; color: #fff; font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 3px; letter-spacing: 0.05em; }
+  .row { padding: 18px 24px; background: #fff; }
+  .row.elite { border-left: 1px solid #E5E5E5; border-right: 1px solid #E5E5E5; border-bottom: 1px solid #F0F0F0; }
+  .row.elite.last { border-bottom: 1px solid #E5E5E5; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; }
+  .row.ep { border-left: 1px solid #E5E5E5; border-right: 1px solid #E5E5E5; border-bottom: 1px solid #F0F0F0; background: #FFFDF5; }
+  .row.ep.last { border-bottom: 1px solid #E5E5E5; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; background: #FFFDF5; }
+  .row .period { font-size: 13px; font-weight: 600; color: #444; margin-bottom: 4px; }
+  .save-badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 3px; color: #fff; }
+  .save-badge.green { background: #1B7B6E; }
+  .save-badge.gold { background: #E8B54D; }
+  .price { font-size: 26px; font-weight: 700; margin-top: 4px; }
+  .price .suffix { font-size: 13px; font-weight: 400; color: #999; }
+  .monthly { font-size: 13px; color: #999; margin-top: 2px; }
+  .breakdown { font-size: 11px; color: #999; margin-top: 4px; }
+  .empty { background: #fff; border-radius: 8px; border: 1px solid #E5E5E5; padding: 40px; text-align: center; color: #999; font-size: 14px; }
+  .detail-box { background: #fff; border-radius: 8px; border: 1px solid #E5E5E5; margin-top: 24px; overflow: hidden; }
+  .detail-box .title { padding: 16px 24px; border-bottom: 1px solid #E5E5E5; font-size: 14px; font-weight: 600; cursor: pointer; list-style: none; }
+  .detail-box .title::-webkit-details-marker { display: none; }
+  .detail-box .title::after { content: '\25B6'; float: right; font-size: 11px; color: #999; transition: transform 0.2s; }
+  details.detail-box[open] .title::after { transform: rotate(90deg); }
+  table { width: 100%; font-size: 13px; border-collapse: collapse; margin-top: 12px; }
+  th { text-align: left; padding: 8px 4px; font-weight: 600; color: #444; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; border-bottom: 1px solid #E5E5E5; }
+  td { padding: 8px 4px; border-bottom: 1px solid #F0F0F0; }
+  .tbl-wrap { padding: 0 24px 16px; overflow-x: auto; }
+  .footer { text-align: center; padding: 24px 0 8px; font-size: 11px; color: #999; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Price Calculator - Spanish 2026</h1>
+  <span class="meta">Data refreshed Mar 2026</span>
+</div>
+
+<div class="wrap">
+  <div class="inputs">
+    <div><label>Country</label><select id="country"><option value="ES">ES</option></select></div>
+    <div><label>Province</label><select id="location"></select></div>
+    <div><label>Listings</label><select id="tier"></select></div>
+    <div><label>Additional ELPs</label><select id="addElps"></select></div>
+  </div>
+  <div id="output"></div>
+  <div class="footer">Source: JamesEdition BigQuery &middot; 12-month rolling window &middot; Real Estate (excl. rentals)</div>
+</div>
+
+<script>
+var ALL_DATA = {
+  ES: [
+    { district:"Malaga", price_elite:NaN, price_elite_plus:NaN, price_elp_3m:NaN },
+    { district:"Ibiza", price_elite:NaN, price_elite_plus:NaN, price_elp_3m:NaN },
+    { district:"Alicante", price_elite:NaN, price_elite_plus:NaN, price_elp_3m:NaN },
+    { district:"Barcelona", price_elite:NaN, price_elite_plus:NaN, price_elp_3m:NaN },
+    { district:"Mallorca", price_elite:NaN, price_elite_plus:NaN, price_elp_3m:NaN },
+    { district:"Madrid", price_elite:NaN, price_elite_plus:NaN, price_elp_3m:NaN },
+    { district:"Other", price_elite:NaN, price_elite_plus:NaN, price_elp_3m:NaN },
+  ],
+};
+
+var TIERS = [
+  { label:"0", count:0, elps:0 },
+  { label:"1-5", count:5, elps:1 },
+  { label:"6-15", count:15, elps:2 },
+  { label:"16-30", count:30, elps:3 },
+  { label:"31-60", count:60, elps:5 },
+  { label:"61-100", count:100, elps:7 },
+];
+
+var country = "ES";
+
+function psych(v) {
+  if (v <= 0) return 0;
+  if (v < 200) return Math.round(v / 10) * 10 - 1;
+  if (v < 10000) return Math.round(v / 100) * 100 - 1;
+  return Math.round(v / 500) * 500 - 1;
+}
+
+function fmt(v) { return "€" + v.toLocaleString("en-US"); }
+function fmtDec(v) { return "€" + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+
+var $location = document.getElementById("location");
+var $tier = document.getElementById("tier");
+var $addElps = document.getElementById("addElps");
+var $output = document.getElementById("output");
+
+TIERS.forEach(function(t, i) { var o = document.createElement("option"); o.value = i; o.textContent = t.label; $tier.appendChild(o); });
+for (var i = 0; i <= 10; i++) { var o = document.createElement("option"); o.value = i; o.textContent = i; $addElps.appendChild(o); }
+
+$tier.value = 0; $addElps.value = 0;
+
+function populateLocations() {
+  $location.innerHTML = "";
+  var wc = document.createElement("option"); wc.value = "__whole__"; wc.textContent = "Whole Country"; $location.appendChild(wc);
+  var list = ALL_DATA[country] || [];
+  for (var i = 0; i < list.length; i++) {
+    var o = document.createElement("option"); o.value = list[i].district; o.textContent = list[i].district; $location.appendChild(o);
+  }
+}
+
+function render() {
+  var loc = $location.value;
+  var tierIdx = parseInt($tier.value);
+  var addElps = parseInt($addElps.value);
+  var districts = ALL_DATA[country] || [];
+  var isWhole = (loc === "__whole__");
+  var data, wholeNote = "";
+
+  if (isWhole) {
+    var maxD = districts[0];
+    for (var i = 1; i < districts.length; i++) {
+      if (districts[i].price_elite > maxD.price_elite) maxD = districts[i];
+    }
+    data = { district: "Whole Country", price_elite: maxD.price_elite, price_elite_plus: maxD.price_elite_plus, price_elp_3m: maxD.price_elp_3m };
+    wholeNote = "Based on highest per-listing price: " + maxD.district + " (" + fmtDec(maxD.price_elite) + "/listing)";
+  } else {
+    data = null;
+    for (var i = 0; i < districts.length; i++) {
+      if (districts[i].district === loc) { data = districts[i]; break; }
+    }
+    if (!data) data = districts[0];
+  }
+
+  var displayLoc = isWhole ? "Whole Country" : loc;
+  var tier = TIERS[tierIdx];
+
+  if (!data || tier.count === 0) {
+    $output.innerHTML = '<div class="empty">Select a listing tier to see pricing.</div>';
+    return;
+  }
+
+  var cnt = tier.count;
+  var inclElps = tier.elps;
+  var totalElps = inclElps + addElps;
+  var elpMonthly = data.price_elp_3m;
+
+  var e3r = data.price_elite * cnt;
+  var e6r = data.price_elite * 2 * 0.9 * cnt;
+  var e12r = data.price_elite * 4 * 0.8 * cnt;
+
+  var ep_l3r = e3r;
+  var ep_l6r = e6r;
+  var ep_l12r = e12r;
+
+  var ep_e3r = elpMonthly * 3 * totalElps;
+  var ep_e6r = elpMonthly * 3 * totalElps * 2;
+  var ep_e12r = elpMonthly * 3 * totalElps * 4;
+
+  var e3 = psych(e3r), e6 = psych(e6r), e12 = psych(e12r);
+  var ep3 = psych(ep_l3r + ep_e3r), ep6 = psych(ep_l6r + ep_e6r), ep12 = psych(ep_l12r + ep_e12r);
+
+  var eSave6 = psych((e3r * 2) - e6r);
+  var eSave12 = psych((e3r * 4) - e12r);
+  var epSave6 = psych(((ep_l3r + ep_e3r) * 2) - (ep_l6r + ep_e6r));
+  var epSave12 = psych(((ep_l3r + ep_e3r) * 4) - (ep_l12r + ep_e12r));
+
+  var periods = [
+    { label: "3 Months", mo: 3, eT: e3, epT: ep3, eSave: 0, epSave: 0 },
+    { label: "6 Months", mo: 6, eT: e6, epT: ep6, eSave: eSave6, epSave: epSave6 },
+    { label: "12 Months", mo: 12, eT: e12, epT: ep12, eSave: eSave12, epSave: epSave12 },
+  ];
+
+  var html = '<div class="cards">';
+  html += '<div class="card-head elite"><h2>Elite</h2><div class="sub">' + tier.label + ' Listings</div><div class="sub" style="visibility:hidden">_</div></div>';
+  html += '<div class="card-head ep"><div class="badge-rec">Recommended</div><h2>Elite Plus</h2><div class="sub">' + tier.label + ' Listings</div><div class="elp-info">' + totalElps + ' Promoted Listing' + (totalElps !== 1 ? 's' : '') + '</div></div>';
+
+  for (var i = 0; i < periods.length; i++) {
+    var p = periods[i];
+    var last = (i === 2) ? " last" : "";
+
+    html += '<div class="row elite' + last + '"><div class="period">' + p.label + '</div>';
+    html += p.eSave > 0 ? '<div><span class="save-badge green">Save ' + fmt(p.eSave) + '</span></div>' : '';
+    html += '<div class="price">' + fmt(p.eT) + ' <span class="suffix">Total</span></div>';
+    html += '<div class="monthly">' + fmtDec(p.eT / p.mo) + ' / Month</div>';
+    html += '<div class="breakdown" style="visibility:hidden">_</div></div>';
+
+    html += '<div class="row ep' + last + '"><div class="period">' + p.label + '</div>';
+    html += p.epSave > 0 ? '<div><span class="save-badge gold">Save ' + fmt(p.epSave) + '</span></div>' : '';
+    html += '<div class="price">' + fmt(p.epT) + ' <span class="suffix">Total</span></div>';
+    html += '<div class="monthly">' + fmtDec(p.epT / p.mo) + ' / Month</div></div>';
+  }
+
+  html += '</div>';
+
+  var elp3mPrice = elpMonthly * 3;
+  var detailTitle = 'Pricing Details \u2014 ' + displayLoc + ', ' + country;
+  if (wholeNote) detailTitle += ' <span style="font-size:11px;color:#1B7B6E;font-weight:400;font-style:italic">(' + wholeNote + ')</span>';
+  html += '<details class="detail-box"><summary class="title">' + detailTitle + '</summary><div class="tbl-wrap">';
+  html += '<table><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>';
+
+  var details = [
+    ["Per-listing price (Elite, /mo)", fmtDec(data.price_elite)],
+    ["Per-ELP price (3m)", fmtDec(elp3mPrice)],
+    ["Included ELPs", inclElps],
+    ["Additional ELPs", addElps],
+    ["Total ELPs", totalElps],
+    ["Listing count", cnt],
+  ];
+
+  for (var i = 0; i < details.length; i++) {
+    html += '<tr><td>' + details[i][0] + '</td><td style="font-weight:500">' + details[i][1] + '</td></tr>';
+  }
+
+  html += '</tbody></table></div></details>';
+  $output.innerHTML = html;
+}
+
+$location.addEventListener("change", render);
+$tier.addEventListener("change", render);
+$addElps.addEventListener("change", render);
+
+populateLocations();
+$location.value = "__whole__";
+render();
+</script>
+</body>
+</html>
