@@ -66,19 +66,19 @@
     <div><label>Additional ELPs</label><select id="addElps"></select></div>
   </div>
   <div id="output"></div>
-  <div class="footer">Source: JamesEdition BigQuery &middot; 12-month rolling window &middot; Real Estate (excl. rentals)</div>
+  <div class="footer">Source: JamesEdition BigQuery · 12-month rolling window · Real Estate (excl. rentals)</div>
 </div>
 
 <script>
 var ALL_DATA = {
   ES: [
-    { district:"Malaga", price_elite:0, price_elite_plus:0, price_elp_3m:0 },
-    { district:"Ibiza", price_elite:0, price_elite_plus:0, price_elp_3m:0 },
-    { district:"Alicante", price_elite:0, price_elite_plus:0, price_elp_3m:0 },
-    { district:"Barcelona", price_elite:0, price_elite_plus:0, price_elp_3m:0 },
-    { district:"Mallorca", price_elite:0, price_elite_plus:0, price_elp_3m:0 },
-    { district:"Madrid", price_elite:0, price_elite_plus:0, price_elp_3m:0 },
-    { district:"Other", price_elite:0, price_elite_plus:0, price_elp_3m:0 },
+    { district:"Alicante", price_elite:14.42, price_elite_plus:16.83, price_elp_3m:136.35 },
+    { district:"Barcelona", price_elite:16.19, price_elite_plus:18.89, price_elp_3m:105.95 },
+    { district:"Ibiza", price_elite:38.75, price_elite_plus:45.21, price_elp_3m:267.68 },
+    { district:"Madrid", price_elite:32.38, price_elite_plus:37.77, price_elp_3m:273.19 },
+    { district:"Malaga", price_elite:33.16, price_elite_plus:38.69, price_elp_3m:235.42 },
+    { district:"Mallorca", price_elite:35.22, price_elite_plus:41.09, price_elp_3m:230.53 },
+    { district:"Other", price_elite:14.72, price_elite_plus:17.17, price_elp_3m:96.32 },
   ],
 };
 
@@ -122,6 +122,11 @@ function populateLocations() {
   }
 }
 
+function setLocation(dist) {
+  $location.value = dist;
+  render();
+}
+
 function render() {
   var loc = $location.value;
   var tierIdx = parseInt($tier.value);
@@ -156,6 +161,8 @@ function render() {
   var cnt = tier.count;
   var inclElps = tier.elps;
   var totalElps = inclElps + addElps;
+
+  // Monthly ELP price stored in price_elp_3m (it's actually per month)
   var elpMonthly = data.price_elp_3m;
 
   var e3r = data.price_elite * cnt;
@@ -172,6 +179,9 @@ function render() {
 
   var e3 = psych(e3r), e6 = psych(e6r), e12 = psych(e12r);
   var ep3 = psych(ep_l3r + ep_e3r), ep6 = psych(ep_l6r + ep_e6r), ep12 = psych(ep_l12r + ep_e12r);
+  var epL3 = psych(ep_l3r), epE3 = psych(ep_e3r);
+  var epL6 = psych(ep_l6r), epE6 = psych(ep_e6r);
+  var epL12 = psych(ep_l12r), epE12 = psych(ep_e12r);
 
   var eSave6 = psych((e3r * 2) - e6r);
   var eSave12 = psych((e3r * 4) - e12r);
@@ -179,25 +189,31 @@ function render() {
   var epSave12 = psych(((ep_l3r + ep_e3r) * 4) - (ep_l12r + ep_e12r));
 
   var periods = [
-    { label: "3 Months", mo: 3, eT: e3, epT: ep3, eSave: 0, epSave: 0 },
-    { label: "6 Months", mo: 6, eT: e6, epT: ep6, eSave: eSave6, epSave: epSave6 },
-    { label: "12 Months", mo: 12, eT: e12, epT: ep12, eSave: eSave12, epSave: epSave12 },
+    { label: "3 Months", mo: 3, eT: e3, epT: ep3, eSave: 0, epSave: 0, epL: epL3, epE: epE3 },
+    { label: "6 Months", mo: 6, eT: e6, epT: ep6, eSave: eSave6, epSave: epSave6, epL: epL6, epE: epE6 },
+    { label: "12 Months", mo: 12, eT: e12, epT: ep12, eSave: eSave12, epSave: epSave12, epL: epL12, epE: epE12 },
   ];
 
   var html = '<div class="cards">';
+
+  // Elite header
   html += '<div class="card-head elite"><h2>Elite</h2><div class="sub">' + tier.label + ' Listings</div><div class="sub" style="visibility:hidden">_</div></div>';
+
+  // Elite Plus header
   html += '<div class="card-head ep"><div class="badge-rec">Recommended</div><h2>Elite Plus</h2><div class="sub">' + tier.label + ' Listings</div><div class="elp-info">' + totalElps + ' Promoted Listing' + (totalElps !== 1 ? 's' : '') + '</div></div>';
 
   for (var i = 0; i < periods.length; i++) {
     var p = periods[i];
     var last = (i === 2) ? " last" : "";
 
+    // Elite row
     html += '<div class="row elite' + last + '"><div class="period">' + p.label + '</div>';
     html += p.eSave > 0 ? '<div><span class="save-badge green">Save ' + fmt(p.eSave) + '</span></div>' : '';
     html += '<div class="price">' + fmt(p.eT) + ' <span class="suffix">Total</span></div>';
     html += '<div class="monthly">' + fmtDec(p.eT / p.mo) + ' / Month</div>';
     html += '<div class="breakdown" style="visibility:hidden">_</div></div>';
 
+    // Elite Plus row
     html += '<div class="row ep' + last + '"><div class="period">' + p.label + '</div>';
     html += p.epSave > 0 ? '<div><span class="save-badge gold">Save ' + fmt(p.epSave) + '</span></div>' : '';
     html += '<div class="price">' + fmt(p.epT) + ' <span class="suffix">Total</span></div>';
@@ -206,10 +222,10 @@ function render() {
 
   html += '</div>';
 
+  // Detail table
   var elp3mPrice = elpMonthly * 3;
-  var detailTitle = 'Pricing Details \u2014 ' + displayLoc + ', ' + country;
-  if (wholeNote) detailTitle += ' <span style="font-size:11px;color:#1B7B6E;font-weight:400;font-style:italic">(' + wholeNote + ')</span>';
-  html += '<details class="detail-box"><summary class="title">' + detailTitle + '</summary><div class="tbl-wrap">';
+  html += '<details class="detail-box"><summary class="title">Pricing Details \u2014 ' + displayLoc + ', ' + country + '</summary><div class="tbl-wrap">';
+  if (wholeNote) html += '<div style="padding:8px 0 4px;font-size:12px;color:#1B7B6E;font-style:italic">' + wholeNote + '</div>';
   html += '<table><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>';
 
   var details = [
@@ -226,6 +242,7 @@ function render() {
   }
 
   html += '</tbody></table></div></details>';
+
   $output.innerHTML = html;
 }
 
