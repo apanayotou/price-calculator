@@ -134,7 +134,7 @@ var lastPricing = null;
 
 function psych(v) {
   if (v <= 0) return 0;
-  if (v < 200)   return Math.round(v / 10)  * 10  - 1;
+  if (v < 1000)  return Math.round(v / 10)  * 10  - 1;
   if (v < 10000) return Math.round(v / 100) * 100 - 1;
   return Math.round(v / 500) * 500 - 1;
 }
@@ -247,8 +247,6 @@ function render() {
 
   var rowCalcs = [];
   var totalListings = 0, totalElps = 0;
-  var totalE3r = 0, totalE6r = 0, totalE12r = 0;
-  var totalEP3r = 0, totalEP6r = 0, totalEP12r = 0;
   var hasAny = false;
 
   for (var i = 0; i < rows.length; i++) {
@@ -269,13 +267,11 @@ function render() {
     var e12r = d.price_elite * 4 * 0.8 * cnt;
 
     var ep_e3r  = elpMo * 3 * rElps;
-    var ep_e6r  = elpMo * 3 * rElps * 2;
-    var ep_e12r = elpMo * 3 * rElps * 4;
+    var ep_e6r  = elpMo * 3 * rElps * 2 * 0.9;
+    var ep_e12r = elpMo * 3 * rElps * 4 * 0.8;
 
     totalListings += cnt;
     totalElps     += rElps;
-    totalE3r  += e3r;  totalE6r  += e6r;  totalE12r  += e12r;
-    totalEP3r += (e3r + ep_e3r); totalEP6r += (e6r + ep_e6r); totalEP12r += (e12r + ep_e12r);
 
     rowCalcs.push({
       loc: r.loc === "__whole__" ? "Whole Country" : r.loc,
@@ -296,13 +292,19 @@ function render() {
     return;
   }
 
-  var e3  = psych(totalE3r),  e6  = psych(totalE6r),  e12  = psych(totalE12r);
-  var ep3 = psych(totalEP3r), ep6 = psych(totalEP6r), ep12 = psych(totalEP12r);
+  // Totals = sum of per-row psych values (matches live file behaviour)
+  var e3=0, e6=0, e12=0, ep3=0, ep6=0, ep12=0;
+  for (var i = 0; i < rowCalcs.length; i++) {
+    var rc = rowCalcs[i];
+    if (!rc) continue;
+    e3  += psych(rc.e3r);  e6  += psych(rc.e6r);  e12  += psych(rc.e12r);
+    ep3 += psych(rc.ep3r); ep6 += psych(rc.ep6r); ep12 += psych(rc.ep12r);
+  }
 
-  var eSave6  = Math.max(psych((totalE3r * 2) - totalE6r),  0);
-  var eSave12 = Math.max(psych((totalE3r * 4) - totalE12r), 0);
-  var epSave6  = Math.max(psych((totalEP3r * 2) - totalEP6r),  0);
-  var epSave12 = Math.max(psych((totalEP3r * 4) - totalEP12r), 0);
+  var eSave6   = Math.max(e3  * 2 - e6,   0);
+  var eSave12  = Math.max(e3  * 4 - e12,  0);
+  var epSave6  = Math.max(ep3 * 2 - ep6,  0);
+  var epSave12 = Math.max(ep3 * 4 - ep12, 0);
 
   var periods = [
     { label:"3 Months",  mo:3,  eT:e3,  epT:ep3,  eSave:0,       epSave:0 },
@@ -320,10 +322,10 @@ function render() {
   // Build province summary for note
   var provinceSummary = [];
   for (var i = 0; i < rowCalcs.length; i++) {
-    var rc = rowCalcs[i];
-    if (!rc) continue;
-    var pname = rc.loc + (rc.source ? " (" + rc.source + ")" : "");
-    provinceSummary.push(pname + ": " + rc.tier.label + " listings, " + rc.elps + " ELPs");
+    var rci = rowCalcs[i];
+    if (!rci) continue;
+    var pname = rci.loc + (rci.source ? " (" + rci.source + ")" : "");
+    provinceSummary.push(pname + ": " + rci.tier.label + " listings, " + rci.elps + " ELPs");
   }
 
   // Store snapshot for HubSpot push
