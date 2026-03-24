@@ -66,6 +66,12 @@
   .hs-status.error { background: #FEF2F2; color: #B91C1C; border-top: 1px solid #FECACA; display: block; }
   .hs-status.loading { background: #F5F5F5; color: #666; border-top: 1px solid #E5E5E5; display: block; }
   .country-flag { font-size: 16px; margin-right: 2px; }
+  .tab-bar { display: flex; border-bottom: 1px solid #E5E5E5; padding: 0 24px; background: #fff; gap: 0; }
+  .tab-btn { padding: 12px 18px; font-size: 13px; font-weight: 600; color: #999; background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-family: inherit; margin-bottom: -1px; transition: color 0.15s, border-color 0.15s; }
+  .tab-btn.active { color: #1A1A1A; border-bottom-color: #1B7B6E; }
+  .tab-btn:hover:not(.active) { color: #555; }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
 </style>
 </head>
 <body>
@@ -156,6 +162,68 @@ var ALL_DATA = {
     { district:"Sintra",  price_elite_5:59.64, price_elite_15:47.71, price_elite_30:41.75, price_elite_60:35.78, price_elite_100:29.82, price_elp_3m:356.00 },
     { district:"Other",   price_elite_5:31.92, price_elite_15:25.53, price_elite_30:22.34, price_elite_60:19.15, price_elite_100:15.96, price_elp_3m:224.00 },
   ],
+};
+
+var COMPONENTS_DATA = {
+  AE: {
+    "Dubai":                            { median:5619911, leads_per_listing:0.3026, lead_per_elp_3m:1.437,  demand_multiplier:0.9,   commission:0.02, conversion:0.03, listings_with_leads:1456 },
+    "Other":                            { median:5619911, leads_per_listing:0.3026, lead_per_elp_3m:1.437,  demand_multiplier:0.9,   commission:0.02, conversion:0.03, listings_with_leads:1456 },
+  },
+  ES: {
+    "Alicante":               { median:1490000, leads_per_listing:0.1816, lead_per_elp_3m:1.1459, demand_multiplier:1.3,   commission:0.03, conversion:0.03, listings_with_leads:388  },
+    "Barcelona":              { median:1650000, leads_per_listing:0.1816, lead_per_elp_3m:1.1459, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:382  },
+    "Cádiz":                  { median:1895000, leads_per_listing:0.1816, lead_per_elp_3m:1.1459, demand_multiplier:1.131, commission:0.03, conversion:0.03, listings_with_leads:165  },
+    "Girona":                 { median:1650000, leads_per_listing:0.1816, lead_per_elp_3m:1.1459, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:153  },
+    "Ibiza":                  { median:3850000, leads_per_listing:0.1816, lead_per_elp_3m:1.1459, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:354  },
+    "Madrid":                 { median:3295000, leads_per_listing:0.1816, lead_per_elp_3m:1.1459, demand_multiplier:1.226, commission:0.03, conversion:0.03, listings_with_leads:441  },
+    "Mallorca":               { median:3500000, leads_per_listing:0.1816, lead_per_elp_3m:1.1459, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:537  },
+    "Málaga":                 { median:3250000, leads_per_listing:0.1816, lead_per_elp_3m:1.1459, demand_multiplier:0.953, commission:0.03, conversion:0.03, listings_with_leads:1809 },
+    "Santa Cruz De Tenerife": { median:1595000, leads_per_listing:0.1816, lead_per_elp_3m:1.1459, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:56   },
+    "Other":                  { median:1490000, leads_per_listing:0.1816, lead_per_elp_3m:1.1459, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:null },
+  },
+  FR: {
+    "Alpes-Maritimes":  { median:2650000, leads_per_listing:0.3004, lead_per_elp_3m:2.3555, demand_multiplier:0.9,  commission:0.05, conversion:0.03, listings_with_leads:773 },
+    "Bouches-Du-Rhone": { median:2850000, leads_per_listing:0.3004, lead_per_elp_3m:2.3555, demand_multiplier:0.9,  commission:0.05, conversion:0.03, listings_with_leads:43  },
+    "Gironde":          { median:1290000, leads_per_listing:0.3004, lead_per_elp_3m:2.3555, demand_multiplier:1.0,  commission:0.05, conversion:0.03, listings_with_leads:51  },
+    "Haute-Savoie":     { median:1900000, leads_per_listing:0.3004, lead_per_elp_3m:2.3555, demand_multiplier:0.9,  commission:0.05, conversion:0.03, listings_with_leads:89  },
+    "Hauts-De-Seine":   { median:1750000, leads_per_listing:0.3004, lead_per_elp_3m:2.3555, demand_multiplier:1.0,  commission:0.05, conversion:0.03, listings_with_leads:22  },
+    "Paris":            { median:2480000, leads_per_listing:0.3004, lead_per_elp_3m:2.3555, demand_multiplier:0.9,  commission:0.05, conversion:0.03, listings_with_leads:344 },
+    "Savoie":           { median:7380000, leads_per_listing:0.3004, lead_per_elp_3m:2.3555, demand_multiplier:0.9,  commission:0.05, conversion:0.03, listings_with_leads:55  },
+    "Var":              { median:2950000, leads_per_listing:0.3004, lead_per_elp_3m:2.3555, demand_multiplier:0.9,  commission:0.05, conversion:0.03, listings_with_leads:293 },
+    "Other":            { median:1290000, leads_per_listing:0.3004, lead_per_elp_3m:2.3555, demand_multiplier:1.0,  commission:0.05, conversion:0.03, listings_with_leads:null },
+  },
+  GR: {
+    "Attica":             { median:1600000, leads_per_listing:0.1736, lead_per_elp_3m:0.9504, demand_multiplier:1.3,   commission:0.03, conversion:0.03, listings_with_leads:517 },
+    "Crete":              { median:1470000, leads_per_listing:0.1736, lead_per_elp_3m:0.9504, demand_multiplier:1.3,   commission:0.03, conversion:0.03, listings_with_leads:144 },
+    "Ionian Islands":     { median:2200000, leads_per_listing:0.1736, lead_per_elp_3m:0.9504, demand_multiplier:1.3,   commission:0.03, conversion:0.03, listings_with_leads:182 },
+    "Peloponnese Region": { median:1800000, leads_per_listing:0.1736, lead_per_elp_3m:0.9504, demand_multiplier:1.3,   commission:0.03, conversion:0.03, listings_with_leads:84  },
+    "Southern Aegean":    { median:2100000, leads_per_listing:0.1736, lead_per_elp_3m:0.9504, demand_multiplier:1.221, commission:0.03, conversion:0.03, listings_with_leads:262 },
+    "Other":              { median:1470000, leads_per_listing:0.1736, lead_per_elp_3m:0.9504, demand_multiplier:1.3,   commission:0.03, conversion:0.03, listings_with_leads:null },
+  },
+  IT: {
+    "Metropolitan City Of Florence":   { median:1750000, leads_per_listing:0.5881, lead_per_elp_3m:2.0643, demand_multiplier:0.959, commission:0.03, conversion:0.03, listings_with_leads:460 },
+    "Metropolitan City Of Milan":       { median:1949000, leads_per_listing:0.5881, lead_per_elp_3m:2.0643, demand_multiplier:1.3,   commission:0.03, conversion:0.03, listings_with_leads:341 },
+    "Metropolitan City Of Rome":        { median:1750000, leads_per_listing:0.5881, lead_per_elp_3m:2.0643, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:270 },
+    "Province Of Arezzo":               { median:1200000, leads_per_listing:0.5881, lead_per_elp_3m:2.0643, demand_multiplier:1.049, commission:0.03, conversion:0.03, listings_with_leads:160 },
+    "Province Of Brescia":              { median:1800000, leads_per_listing:0.5881, lead_per_elp_3m:2.0643, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:103 },
+    "Province Of Como":                 { median:1650000, leads_per_listing:0.5881, lead_per_elp_3m:2.0643, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:406 },
+    "Province Of Grosseto":             { median:1500000, leads_per_listing:0.5881, lead_per_elp_3m:2.0643, demand_multiplier:0.936, commission:0.03, conversion:0.03, listings_with_leads:176 },
+    "Province Of Imperia":              { median:1600000, leads_per_listing:0.5881, lead_per_elp_3m:2.0643, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:80  },
+    "Province Of Lucca":                { median:1900000, leads_per_listing:0.5881, lead_per_elp_3m:2.0643, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:235 },
+    "Province Of Perugia":              { median:1380000, leads_per_listing:0.5881, lead_per_elp_3m:2.0643, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:257 },
+    "Province Of Sassari":              { median:1600000, leads_per_listing:0.5881, lead_per_elp_3m:2.0643, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:205 },
+    "Province Of Verbano-Cusio-Ossola": { median:1985000, leads_per_listing:0.5881, lead_per_elp_3m:2.0643, demand_multiplier:1.3,   commission:0.03, conversion:0.03, listings_with_leads:95  },
+    "Provincia Di Siena":               { median:1550000, leads_per_listing:0.5881, lead_per_elp_3m:2.0643, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:360 },
+    "Other":                            { median:1200000, leads_per_listing:0.5881, lead_per_elp_3m:2.0643, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:null },
+  },
+  PT: {
+    "Cascais": { median:2700000, leads_per_listing:0.1916, lead_per_elp_3m:1.0775, demand_multiplier:0.9,   commission:0.05, conversion:0.03, listings_with_leads:398 },
+    "Lagos":   { median:1065000, leads_per_listing:0.1916, lead_per_elp_3m:1.0775, demand_multiplier:1.3,   commission:0.05, conversion:0.03, listings_with_leads:53  },
+    "Lisbon":  { median:1150000, leads_per_listing:0.1916, lead_per_elp_3m:1.0775, demand_multiplier:1.109, commission:0.05, conversion:0.03, listings_with_leads:352 },
+    "Loulé":   { median:1450000, leads_per_listing:0.1916, lead_per_elp_3m:1.0775, demand_multiplier:0.9,   commission:0.05, conversion:0.03, listings_with_leads:104 },
+    "Sintra":  { median:1990000, leads_per_listing:0.1916, lead_per_elp_3m:1.0775, demand_multiplier:1.107, commission:0.05, conversion:0.03, listings_with_leads:58  },
+    "Other":   { median:1065000, leads_per_listing:0.1916, lead_per_elp_3m:1.0775, demand_multiplier:0.9,   commission:0.05, conversion:0.03, listings_with_leads:null },
+  },
 };
 
 var TIERS = [
@@ -342,6 +410,7 @@ function render() {
       tier:       tier,
       cnt:        cnt,
       elps:       rElps,
+      elpPrice:   elpMo,
       e3r:e3r, e6r:e6r, e12r:e12r,
       elp3r:ep_e3r, elp6r:ep_e6r, elp12r:ep_e12r,
     });
@@ -420,8 +489,15 @@ function render() {
   }
   html += '</div>';
 
-  // Breakdown table
-  html += '<div class="breakdown-box"><div class="title">Cost Breakdown by Location</div><div class="tbl-wrap">';
+  // Breakdown table (tabbed)
+  html += '<div class="breakdown-box">';
+  html += '<div class="tab-bar">';
+  html += '<button class="tab-btn active" onclick="showTab(this,\'tab-prices\')">Prices</button>';
+  html += '<button class="tab-btn" onclick="showTab(this,\'tab-components\')">Components</button>';
+  html += '</div>';
+
+  // --- Tab 1: Prices ---
+  html += '<div id="tab-prices" class="tab-pane active"><div class="tbl-wrap">';
   html += '<table class="calc-table"><thead><tr><th>Country</th><th>Region</th><th>Listings</th><th>ELPs</th>';
   html += '<th>Elite (3m)</th><th>Elite (6m)</th><th>Elite (12m)</th>';
   html += '<th>Elite+ (3m)</th><th>Elite+ (6m)</th><th>Elite+ (12m)</th>';
@@ -445,15 +521,55 @@ function render() {
     html += '<td>'+fmt(td_ep3)+'</td><td>'+fmt(td_ep6)+'</td><td>'+fmt(td_ep12)+'</td>';
     html += '</tr>';
   }
-
   if (activeRows.length > 1) {
     html += '<tr class="total-row"><td colspan="2">Total</td><td>'+totalListings+'</td><td>'+totalElps+'</td>';
     html += '<td>'+fmt(e3)+'</td><td>'+fmt(e6)+'</td><td>'+fmt(e12)+'</td>';
     html += '<td>'+fmt(ep3)+'</td><td>'+fmt(ep6)+'</td><td>'+fmt(ep12)+'</td>';
     html += '</tr>';
   }
-
   html += '</tbody></table></div></div>';
+
+  // --- Tab 2: Components ---
+  html += '<div id="tab-components" class="tab-pane"><div class="tbl-wrap">';
+  html += '<table class="calc-table"><thead><tr>';
+  html += '<th>Country</th><th>Region</th>';
+  html += '<th>Median Lead Value</th><th>Commission</th><th>Conversion</th>';
+  html += '<th>Leads / Listing (3m)</th><th>Lead / ELP (3m)</th><th>Demand Mult.</th>';
+  html += '<th>Take Rate (Elite)</th><th>Take Rate (ELP)</th><th>Listings w/ Leads</th>';
+  html += '</tr></thead><tbody>';
+
+  var seenDistricts = {};
+  for (var i = 0; i < rowCalcs.length; i++) {
+    var rc = rowCalcs[i]; if (!rc) continue;
+    var distKey = rc.country + '::' + rc.loc;
+    if (seenDistricts[distKey]) continue;
+    seenDistricts[distKey] = true;
+    var regionLabel2 = rc.loc + (rc.source ? ' <span style="font-size:11px;color:#1B7B6E">(' + rc.source + ')</span>' : '');
+    var cdata = (COMPONENTS_DATA[rc.country] || {})[rc.loc === 'Whole Country' ? (rc.source || rc.loc) : rc.loc] || {};
+    var median = cdata.median ? '€' + Math.round(cdata.median).toLocaleString('en-US') : '—';
+    var commission = cdata.commission ? (cdata.commission * 100).toFixed(0) + '%' : '—';
+    var conversion = cdata.conversion ? (cdata.conversion * 100).toFixed(0) + '%' : '—';
+    var lpl = cdata.leads_per_listing !== undefined ? cdata.leads_per_listing : '—';
+    var lepelp = cdata.lead_per_elp_3m !== undefined ? cdata.lead_per_elp_3m : '—';
+    var dmult = cdata.demand_multiplier !== undefined ? cdata.demand_multiplier + '×' : '—';
+    var lwl = cdata.listings_with_leads !== null && cdata.listings_with_leads !== undefined ? cdata.listings_with_leads : '—';
+    html += '<tr>';
+    html += '<td>' + (COUNTRY_NAMES[rc.country]||rc.country) + '</td>';
+    html += '<td>' + regionLabel2 + '</td>';
+    html += '<td>' + median + '</td>';
+    html += '<td>' + commission + '</td>';
+    html += '<td>' + conversion + '</td>';
+    html += '<td>' + lpl + '</td>';
+    html += '<td>' + lepelp + '</td>';
+    html += '<td>' + dmult + '</td>';
+    html += '<td>10% / 8% / 7% / 6% / 5%</td>';
+    html += '<td>10%</td>';
+    html += '<td>' + lwl + '</td>';
+    html += '</tr>';
+  }
+  html += '</tbody></table></div></div>';
+
+  html += '</div>'; // end breakdown-box
   html += '<div class="hs-panel"><div id="hs-status" class="hs-status"></div></div>';
 
   $output.innerHTML = html;
@@ -513,6 +629,14 @@ function pushToHubSpot(planKey, btn) {
 }
 
 document.getElementById("btn-add").addEventListener("click", function(){ addRow(); });
+
+function showTab(btn, tabId) {
+  var box = btn.closest('.breakdown-box');
+  box.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  box.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
 
 // Init
 addRow("ES", "__whole__", 0, 0);
