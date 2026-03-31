@@ -427,18 +427,18 @@ function render() {
 
   // Elite: sum psych per row, then floor
   var e3=0, e6=0, e12=0;
-  var ep3r=0, ep6r=0, ep12r=0;
+  var elp3=0, elp6=0, elp12=0;
   for (var i = 0; i < rowCalcs.length; i++) {
     var rc = rowCalcs[i]; if (!rc) continue;
-    e3    += psych(rc.e3r);  e6    += psych(rc.e6r);  e12    += psych(rc.e12r);
-    ep3r  += rc.e3r + rc.elp3r; ep6r += rc.e6r + rc.elp6r; ep12r += rc.e12r + rc.elp12r;
+    e3   += psych(rc.e3r);   e6   += psych(rc.e6r);   e12   += psych(rc.e12r);
+    elp3 += psych(rc.elp3r); elp6 += psych(rc.elp6r); elp12 += psych(rc.elp12r);
   }
   e3  = Math.max(e3,  300); e6  = Math.max(e6,  570); e12  = Math.max(e12,  1080);
 
-  // Elite Plus: psych the combined raw total, then floor
-  var ep3  = Math.max(psych(ep3r),  300);
-  var ep6  = Math.max(psych(ep6r),  570);
-  var ep12 = Math.max(psych(ep12r), 1080);
+  // Elite Plus: floored Elite + ELP component (ELP always added after floor)
+  var ep3  = e3  + elp3;
+  var ep6  = e6  + elp6;
+  var ep12 = e12 + elp12;
 
   var eSave6=Math.max(e3*2-e6,0), eSave12=Math.max(e3*4-e12,0);
   var epSave6=Math.max(ep3*2-ep6,0), epSave12=Math.max(ep3*4-ep12,0);
@@ -514,7 +514,7 @@ function render() {
       td_e3=e3; td_e6=e6; td_e12=e12; td_ep3=ep3; td_ep6=ep6; td_ep12=ep12;
     } else {
       td_e3=psych(rc.e3r); td_e6=psych(rc.e6r); td_e12=psych(rc.e12r);
-      td_ep3=psych(rc.e3r+rc.elp3r); td_ep6=psych(rc.e6r+rc.elp6r); td_ep12=psych(rc.e12r+rc.elp12r);
+      td_ep3=td_e3+psych(rc.elp3r); td_ep6=td_e6+psych(rc.elp6r); td_ep12=td_e12+psych(rc.elp12r);
     }
     html += '<tr>';
     html += '<td>' + (COUNTRY_NAMES[rc.country]||rc.country) + '</td>';
