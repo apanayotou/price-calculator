@@ -48,7 +48,7 @@ country_dal AS (
     country_code,
     AVG(listings)     AS dal_country,
     SUM(leads)        AS leads_12m_country,
-    AVG(elp_listings) AS elp_dal_country,
+    AVG(IF(elp_listings > 0, elp_listings, NULL)) AS elp_dal_country,
     SUM(elp_leads)    AS elp_leads_country,
     SUM(elite_leads)  AS elite_leads_country,
     AVG(elite_listings) AS elite_dal_country
@@ -62,8 +62,10 @@ base AS (
     l.lead_count, l.account_type, l.price_eur, l.price_on_request,
     l.impressions, l.Category, l.rental,
     CASE WHEN hs.country_code IS NOT NULL THEN l.country_code ELSE 'GLOBAL' END AS country_group,
-    hs.adm_level_2 AS district_key
+    hs.adm_level_2 AS district_key,
+    o.office_id
   FROM datasets.tableau_listing_data l
+  LEFT JOIN offices_to_exclude o USING (office_id) 
   LEFT JOIN hotspots hs
     ON  l.country_code = hs.country_code
     AND CASE 
@@ -71,6 +73,7 @@ base AS (
       WHEN hs.adm_level_2= "Dubai" THEN hs.adm_level_2 = l.adm_level_1
       ELSE hs.adm_level_2 = l.adm_level_2
     END
+
 ),
 
 district_map AS (
@@ -145,7 +148,7 @@ district_agg AS (
     dm.country_group                                                                   AS country_code,
     dm.district_group                                                                  AS state_district,
     APPROX_QUANTILES(
-      IF(b.lead_count > 0 AND NOT b.price_on_request AND b.account_type LIKE '%elite%', b.price_eur, NULL),
+      IF(b.lead_count > 0 AND NOT b.price_on_request AND b.account_type LIKE '%elite%' and office_id is null, b.price_eur, NULL),
       100
     )[OFFSET(50)]                                                                      AS median_lead_value,
     MAX(cd.leads_12m_country)   AS leads_12m_country,
@@ -197,6 +200,7 @@ calc AS (
       WHEN 'CH' THEN 0.025
       WHEN 'AE' THEN 0.02
       WHEN 'CA' THEN 0.04
+      WHEN 'GB' then 0.01
     
       ELSE            0.03
     END                                                                        AS agency_commission_by_country,
@@ -207,8 +211,8 @@ calc AS (
     0.06                                                                       AS take_rate_60,
     0.05                                                                       AS take_rate_100,
     0.10                                                                       AS take_rate_elp,
-    (elite_leads_country / 4.0) / NULLIF(elite_dal_country, 0)                    AS leads_per_listing,
-    (elp_leads_country / 4.0) / NULLIF(elp_dal_country, 0)                    AS lead_per_elp_3m,
+    (elite_leads_country / 4.0) / NULLIF(elite_dal_country, 0)                 AS leads_per_listing,
+    LEAST((elp_leads_country / 4.0) / NULLIF(elp_dal_country, 0), 4)            AS lead_per_elp_3m,
     GREATEST(LEAST(COALESCE(elp_count, ideal_slots) / NULLIF(ideal_slots, 0), 1.3), 0.9) AS demand_multiplier
   FROM district_agg
 )
