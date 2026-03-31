@@ -100,7 +100,7 @@
 <script>
 var N8N_WEBHOOK_URL = "https://james-edition.app.n8n.cloud/webhook/price-calculator-hs";
 
-var COUNTRY_NAMES = { ES:"Spain 🇪🇸", FR:"France 🇫🇷", GR:"Greece 🇬🇷", IT:"Italy 🇮🇹", PT:"Portugal 🇵🇹" };
+var COUNTRY_NAMES = { ES:"Spain 🇪🇸", FR:"France 🇫🇷", GB:"United Kingdom 🇬🇧", GR:"Greece 🇬🇷", IT:"Italy 🇮🇹", PT:"Portugal 🇵🇹" };
 
 var ALL_DATA = {
   ES: [
@@ -118,6 +118,10 @@ var ALL_DATA = {
     { district:"Paris",           price_elite_5:62.77, price_elite_15:50.22, price_elite_30:43.94, price_elite_60:37.66, price_elite_100:31.39, price_elp_3m:473.00 },
     { district:"Var",             price_elite_5:74.67, price_elite_15:59.73, price_elite_30:52.27, price_elite_60:44.80, price_elite_100:37.33, price_elp_3m:563.00 },
     { district:"Other",           price_elite_5:62.77, price_elite_15:50.22, price_elite_30:43.94, price_elite_60:37.66, price_elite_100:31.39, price_elp_3m:473.00 },
+  ],
+  GB: [
+    { district:"Greater London", price_elite_5:191.94, price_elite_15:153.55, price_elite_30:134.36, price_elite_60:115.16, price_elite_100:95.97, price_elp_3m:4462.00 },
+    { district:"Other",          price_elite_5:191.94, price_elite_15:153.55, price_elite_30:134.36, price_elite_60:115.16, price_elite_100:95.97, price_elp_3m:4462.00 },
   ],
   GR: [
     { district:"Attica",          price_elite_5:21.02, price_elite_15:16.82, price_elite_30:14.71, price_elite_60:12.61, price_elite_100:10.51, price_elp_3m:178.00 },
@@ -147,43 +151,47 @@ var ALL_DATA = {
 
 var COMPONENTS_DATA = {
   ES: {
-    "Alicante":  { median:1375000, leads_per_listing:0.1607, lead_per_elp_3m:1.1437, demand_multiplier:1.3,   commission:0.03, conversion:0.03, listings_with_leads:220  },
+    "Alicante":  { median:1490000, leads_per_listing:0.1607, lead_per_elp_3m:1.1437, demand_multiplier:1.3,   commission:0.03, conversion:0.03, listings_with_leads:220  },
     "Barcelona": { median:1650000, leads_per_listing:0.1607, lead_per_elp_3m:1.1437, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:137  },
     "Cádiz":     { median:1895000, leads_per_listing:0.1607, lead_per_elp_3m:1.1437, demand_multiplier:1.131, commission:0.03, conversion:0.03, listings_with_leads:98   },
-    "Ibiza":     { median:4000000, leads_per_listing:0.1607, lead_per_elp_3m:1.1437, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:282  },
+    "Ibiza":     { median:3850000, leads_per_listing:0.1607, lead_per_elp_3m:1.1437, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:282  },
     "Madrid":    { median:3295000, leads_per_listing:0.1607, lead_per_elp_3m:1.1437, demand_multiplier:1.226, commission:0.03, conversion:0.03, listings_with_leads:182  },
-    "Mallorca":  { median:3250000, leads_per_listing:0.1607, lead_per_elp_3m:1.1437, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:251  },
-    "Málaga":    { median:5600000, leads_per_listing:0.1607, lead_per_elp_3m:1.1437, demand_multiplier:0.953, commission:0.03, conversion:0.03, listings_with_leads:558  },
+    "Mallorca":  { median:3500000, leads_per_listing:0.1607, lead_per_elp_3m:1.1437, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:251  },
+    "Málaga":    { median:3250000, leads_per_listing:0.1607, lead_per_elp_3m:1.1437, demand_multiplier:0.945, commission:0.03, conversion:0.03, listings_with_leads:558  },
     "Other":     { median:1375000, leads_per_listing:0.1607, lead_per_elp_3m:1.1437, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:null },
   },
   FR: {
     "Alpes-Maritimes": { median:1995000, leads_per_listing:0.2812, lead_per_elp_3m:2.3555, demand_multiplier:0.9, commission:0.03, conversion:0.03, listings_with_leads:505 },
-    "Paris":           { median:1825000, leads_per_listing:0.2812, lead_per_elp_3m:2.3555, demand_multiplier:0.9, commission:0.03, conversion:0.03, listings_with_leads:241 },
-    "Var":             { median:3200000, leads_per_listing:0.2812, lead_per_elp_3m:2.3555, demand_multiplier:0.9, commission:0.03, conversion:0.03, listings_with_leads:185 },
+    "Paris":           { median:2480000, leads_per_listing:0.2812, lead_per_elp_3m:2.3555, demand_multiplier:0.9, commission:0.03, conversion:0.03, listings_with_leads:241 },
+    "Var":             { median:2950000, leads_per_listing:0.2812, lead_per_elp_3m:2.3555, demand_multiplier:0.9, commission:0.03, conversion:0.03, listings_with_leads:185 },
     "Other":           { median:1825000, leads_per_listing:0.2812, lead_per_elp_3m:2.3555, demand_multiplier:0.9, commission:0.03, conversion:0.03, listings_with_leads:null },
   },
+  GB: {
+    "Greater London": { median:8008223, leads_per_listing:0.2663, lead_per_elp_3m:6.8783, demand_multiplier:0.9, commission:0.03, conversion:0.03, listings_with_leads:null },
+    "Other":          { median:8008223, leads_per_listing:0.2663, lead_per_elp_3m:6.8783, demand_multiplier:0.9, commission:0.03, conversion:0.03, listings_with_leads:null },
+  },
   GR: {
-    "Attica":          { median:1600000, leads_per_listing:0.1736, lead_per_elp_3m:0.9504, demand_multiplier:1.3,   commission:0.03, conversion:0.03, listings_with_leads:179 },
-    "Ionian Islands":  { median:2200000, leads_per_listing:0.1736, lead_per_elp_3m:0.9504, demand_multiplier:1.3,   commission:0.03, conversion:0.03, listings_with_leads:78  },
-    "Southern Aegean": { median:2100000, leads_per_listing:0.1736, lead_per_elp_3m:0.9504, demand_multiplier:1.221, commission:0.03, conversion:0.03, listings_with_leads:73  },
-    "Other":           { median:1600000, leads_per_listing:0.1736, lead_per_elp_3m:0.9504, demand_multiplier:1.3,   commission:0.03, conversion:0.03, listings_with_leads:null },
+    "Attica":          { median:1600000, leads_per_listing:0.146, lead_per_elp_3m:0.9504, demand_multiplier:1.3,   commission:0.03, conversion:0.03, listings_with_leads:179 },
+    "Ionian Islands":  { median:2200000, leads_per_listing:0.146,  lead_per_elp_3m:0.9504, demand_multiplier:1.077,   commission:0.03, conversion:0.03, listings_with_leads:78  },
+    "Southern Aegean": { median:2100000, leads_per_listing:0.146,  lead_per_elp_3m:0.9504, demand_multiplier:1.156, commission:0.03, conversion:0.03, listings_with_leads:73  },
+    "Other":           { median:1600000, leads_per_listing:0.146, lead_per_elp_3m:0.9504, demand_multiplier:1.3,   commission:0.03, conversion:0.03, listings_with_leads:null },
   },
   IT: {
     "Metropolitan City Of Florence": { median:1400000, leads_per_listing:0.5706, lead_per_elp_3m:2.0479, demand_multiplier:0.959, commission:0.03, conversion:0.03, listings_with_leads:238 },
     "Metropolitan City Of Milan":    { median:1950000, leads_per_listing:0.5706, lead_per_elp_3m:2.0479, demand_multiplier:1.3,   commission:0.03, conversion:0.03, listings_with_leads:261 },
     "Metropolitan City Of Rome":     { median:1500000, leads_per_listing:0.5706, lead_per_elp_3m:2.0479, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:186 },
-    "Province Of Arezzo":            { median:1200000, leads_per_listing:0.5706, lead_per_elp_3m:2.0479, demand_multiplier:1.049, commission:0.03, conversion:0.03, listings_with_leads:65  },
+    "Province Of Arezzo":            { median:1200000, leads_per_listing:0.5706, lead_per_elp_3m:2.0479, demand_multiplier:1.199, commission:0.03, conversion:0.03, listings_with_leads:65  },
     "Province Of Como":              { median:1385000, leads_per_listing:0.5706, lead_per_elp_3m:2.0479, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:261 },
     "Province Of Grosseto":          { median:1500000, leads_per_listing:0.5706, lead_per_elp_3m:2.0479, demand_multiplier:0.936, commission:0.03, conversion:0.03, listings_with_leads:70  },
     "Province Of Lucca":             { median:1900000, leads_per_listing:0.5706, lead_per_elp_3m:2.0479, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:85  },
     "Province Of Perugia":           { median:1380000, leads_per_listing:0.5706, lead_per_elp_3m:2.0479, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:142 },
     "Province Of Sassari":           { median:1600000, leads_per_listing:0.5706, lead_per_elp_3m:2.0479, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:110 },
-    "Provincia Di Siena":            { median:1550000, leads_per_listing:0.5706, lead_per_elp_3m:2.0479, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:137 },
+    "Provincia Di Siena":            { median:1550000, leads_per_listing:0.5706, lead_per_elp_3m:2.0479, demand_multiplier:0.936,   commission:0.03, conversion:0.03, listings_with_leads:137 },
     "Other":                         { median:1385000, leads_per_listing:0.5706, lead_per_elp_3m:2.0479, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:null },
   },
   PT: {
     "Cascais": { median:2900000, leads_per_listing:0.1658, lead_per_elp_3m:1.0775, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:203 },
-    "Lisbon":  { median:1150000, leads_per_listing:0.1658, lead_per_elp_3m:1.0775, demand_multiplier:1.109, commission:0.03, conversion:0.03, listings_with_leads:139 },
+    "Lisbon":  { median:1150000, leads_per_listing:0.1658, lead_per_elp_3m:1.0775, demand_multiplier:1.048, commission:0.03, conversion:0.03, listings_with_leads:139 },
     "Other":   { median:1150000, leads_per_listing:0.1658, lead_per_elp_3m:1.0775, demand_multiplier:0.9,   commission:0.03, conversion:0.03, listings_with_leads:null },
   },
 };
