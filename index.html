@@ -608,9 +608,9 @@ var COMPONENTS_DATA = {
     "Provincia Di Siena":            { median:1700000, commission:0.03, leads_per_listing:0.5665, lead_per_elp_3m:2.0913, demand_multiplier:0.900 },
     "Other":                         { median:1306000, commission:0.03, leads_per_listing:0.5665, lead_per_elp_3m:2.0913, demand_multiplier:0.914 },
   },
-  Other: { "Other": { median:1992858, commission:0.03, leads_per_listing:0.9463, lead_per_elp_3m:1.46, demand_multiplier:0.934 } },
+  Other: { "Other": { median:1992858, commission:0.03, leads_per_listing:0.3530, lead_per_elp_3m:1.46, demand_multiplier:0.934 } },
   PT: {
-    "Cascais": { median:2200000, commission:0.03, leads_per_listing:0.1769, lead_per_elp_3m:1.2073, demand_multiplier:0.900 },
+    "Cascais": { median:2250000, commission:0.03, leads_per_listing:0.1769, lead_per_elp_3m:1.3500, demand_multiplier:0.900 },
     "Lisbon":  { median:1380000, commission:0.03, leads_per_listing:0.1769, lead_per_elp_3m:1.2073, demand_multiplier:1.050 },
     "Other":   { median:1291000, commission:0.03, leads_per_listing:0.1769, lead_per_elp_3m:1.2073, demand_multiplier:0.930 },
   },
@@ -621,8 +621,8 @@ var COMPONENTS_DATA = {
     "Other":              { median:5411326, commission:0.030, leads_per_listing:0.1205, lead_per_elp_3m:3.0000, demand_multiplier:0.914 },
   },
   ZA: {
-    "Cape Town": { median:1050000, commission:0.03, leads_per_listing:0.9933, lead_per_elp_3m:3.0000, demand_multiplier:0.900 },
-    "Other":     { median: 853000, commission:0.03, leads_per_listing:0.9933, lead_per_elp_3m:3.0000, demand_multiplier:0.900 },
+    "Cape Town": { median:1049080, commission:0.030, leads_per_listing:0.7000, lead_per_elp_3m:3.0000, demand_multiplier:0.900 },
+    "Other":     { median: 852263, commission:0.030, leads_per_listing:0.7000, lead_per_elp_3m:3.0000, demand_multiplier:0.900 },
   },
 };
 
@@ -649,9 +649,10 @@ function fmtDec(v) { return "€" + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g
 function getDistrictData(cc, loc) {
   var ds = ALL_DATA[cc] || [];
   if (loc === "__whole__") {
+    var excludeFromWhole = ["Province Of Verbano-Cusio-Ossola", "Province Of Imperia", "Nyon District", "Riviera-Pays-D'enhaut District", "Miami-Dade County"];
     var best = ds[0];
     for (var i = 1; i < ds.length; i++) {
-      if (ds[i].district !== "Other" && ds[i].price_elite_60 > best.price_elite_60) best = ds[i];
+      if (ds[i].district !== "Other" && excludeFromWhole.indexOf(ds[i].district) === -1 && ds[i].price_elite_60 > best.price_elite_60) best = ds[i];
     }
     return { data: best, source: best.district };
   }
