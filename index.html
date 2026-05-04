@@ -637,6 +637,8 @@ function fmtDec(v) { return "€" + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g
 function getDistrictData(cc, loc) {
   var ds = ALL_DATA[cc] || [];
   if (loc === "__whole__") {
+    // Single-district countries — just return that district, no source label
+    if (ds.length === 1) return { data: ds[0], source: null };
     var excludeFromWhole = ["Province Of Verbano-Cusio-Ossola", "Province Of Imperia"];
     var best = ds[0];
     for (var i = 1; i < ds.length; i++) {
@@ -662,6 +664,10 @@ function removeRow(id) {
 
 function buildDistrictOptions(cc, sel) {
   var ds = ALL_DATA[cc] || [];
+  // Single-district countries — just show Whole Country, skip the district
+  if (ds.length === 1 && (ds[0].district === 'Other' || ds[0].district === 'Rest of the World')) {
+    return '<option value="__whole__" selected>Whole Country</option>';
+  }
   var h = '';
   if (cc !== 'Other') {
     h += '<option value="__whole__"' + (sel === "__whole__" ? " selected" : "") + '>Whole Country</option>';
@@ -698,7 +704,7 @@ function renderRows() {
   c.querySelectorAll(".sel-country").forEach(function(el){
     el.addEventListener("change", function(){
       var id = parseInt(this.getAttribute("data-id"));
-      var singleDist = {AE:'Other',CH:'Other',ZA:'Other',Other:'Rest of the World'}; rows.forEach(function(r){ if(r.id===id){ r.country=el.value; r.loc=singleDist[el.value]||'__whole__'; } });
+      rows.forEach(function(r){ if(r.id===id){ r.country=el.value; r.loc='__whole__'; } });
       renderRows(); render();
     });
   });
