@@ -1,230 +1,950 @@
-WITH date_range AS (
-  SELECT
-    DATE_TRUNC(CURRENT_DATE(), MONTH)                               AS end_date,
-    DATE_SUB(DATE_TRUNC(CURRENT_DATE(), MONTH), INTERVAL 12 MONTH) AS start_date
-),
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Price Calculator 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Prata&display=swap" rel="stylesheet">
+<style>
+/* ── JE Design System tokens ─────────────────────────── */
+:root {
+  --je-teal-deep: #006C75;
+  --je-teal-deep-hover: #19818A;
+  --je-green: #178475;
+  --je-gold-dark: #b9a16f;
+  --je-gold-light: #dfd5c0;
+  --je-black: #151515;
+  --je-mid-gray: #606060;
+  --je-light-gray: #878787;
+  --je-muted-gray: #ADADAD;
+  --je-border: #E0E0E0;
+  --je-divider: #ececec;
+  --je-disabled-bg: #F0F0F0;
+  --je-off-white: #F5F5F5;
+  --je-near-white: #F7F7F7;
+  --je-white: #FFFFFF;
+  --je-error: #E63232;
+  --font-sans: 'Inter', Arial, sans-serif;
+  --font-serif: 'Prata', serif;
+  --radius: 4px;
+  --shadow-border: 0 0 0 1px #ececec;
+  --shadow-subtle: 0 3px 13px 0 rgba(107,107,107,0.2);
+}
 
-offices_to_exclude AS (
-  SELECT office_id
-  FROM data_marts.pg_listings
-  WHERE active
-  GROUP BY office_id
-  HAVING COUNT(DISTINCT listing_id) >= 100
-),
+/* ── Reset & base ─────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--je-black);
+  background: var(--je-near-white);
+  -webkit-font-smoothing: antialiased;
+}
 
-hotspots AS (
-  SELECT
-    h.country_code, h.adm_level_1, h.adm_level_2, h.rank,
-    i.locality, i.island
-  FROM data_marts.hotspot_composite_scores_6m h
-  LEFT JOIN datasets.hotspot_island_map i ON i.island = h.adm_level_2
-  WHERE h.rank <= 100
-),
+/* ── Header ───────────────────────────────────────────── */
+.header {
+  background: var(--je-white);
+  border-bottom: 1px solid var(--je-divider);
+  padding: 0 40px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.header-logo {
+  width: 28px;
+  height: 28px;
+  background: var(--je-black);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.header-logo svg { width: 16px; height: 16px; }
+.header-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--je-black);
+  letter-spacing: -0.01em;
+}
+.header-meta {
+  font-size: 11px;
+  color: var(--je-light-gray);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
 
-country_daily AS (
-  SELECT
-    country_code,
-    date,
-    COUNT(DISTINCT listing_id)                                       AS listings,
-    SUM(lead_count)                                                  AS leads,
-    COUNT(DISTINCT if(account_type = 'elite',listing_id,null))       AS elite_listings,
-    SUM(if(account_type = 'elite',lead_count,0))                     AS elite_leads,
-    COUNT(DISTINCT IF(feature_status = 'elp', listing_id, NULL))    AS elp_listings,
-    SUM(IF(feature_status = 'elp', lead_count, 0))                  AS elp_leads
-  FROM datasets.tableau_listing_data l
-  LEFT JOIN offices_to_exclude o USING (office_id)
-  CROSS JOIN date_range d
-  WHERE l.date >= d.start_date
-    AND l.date < d.end_date
-    AND Category = 'Listing::RealEstateListing'
-    AND (rental = FALSE OR rental IS NULL)
-    AND account_type LIKE '%elite%'
-    AND o.office_id IS NULL
-  GROUP BY 1, 2
-),
+/* ── Page wrap ────────────────────────────────────────── */
+.wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 32px 64px;
+}
 
-country_dal AS (
-  SELECT
-    country_code,
-    AVG(listings)     AS dal_country,
-    SUM(leads)        AS leads_12m_country,
-    AVG(IF(elp_listings > 0, elp_listings, NULL)) AS elp_dal_country,
-    SUM(elp_leads)    AS elp_leads_country,
-    SUM(elite_leads)  AS elite_leads_country,
-    AVG(elite_listings) AS elite_dal_country
-  FROM country_daily
-  GROUP BY 1
-),
+/* ── Section label ────────────────────────────────────── */
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--je-light-gray);
+  margin-bottom: 12px;
+}
 
-base AS (
-  SELECT
-    l.listing_id, l.date, l.country_code, l.locality, l.adm_level_2,
-    l.lead_count, l.account_type, l.price_eur, l.price_on_request,
-    l.impressions, l.Category, l.rental,
-    CASE WHEN hs.country_code IS NOT NULL THEN l.country_code ELSE 'GLOBAL' END AS country_group,
-    hs.adm_level_2 AS district_key,
-    o.office_id
-  FROM datasets.tableau_listing_data l
-  LEFT JOIN offices_to_exclude o USING (office_id) 
-  LEFT JOIN hotspots hs
-    ON  l.country_code = hs.country_code
-    AND CASE 
-      WHEN hs.island IS NOT NULL THEN hs.locality = lower(l.locality)
-      WHEN hs.adm_level_2= "Dubai" THEN hs.adm_level_2 = l.adm_level_1
-      ELSE hs.adm_level_2 = l.adm_level_2
-    END
+/* ── Config card ──────────────────────────────────────── */
+.config-card {
+  background: var(--je-white);
+  border: 1px solid var(--je-divider);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 32px;
+}
+.config-rows { display: flex; flex-direction: column; gap: 0; }
+.config-row {
+  display: grid;
+  grid-template-columns: 160px 1fr 1fr 1fr 1fr 36px;
+  gap: 12px;
+  align-items: end;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--je-near-white);
+}
+.config-row:first-child { padding-top: 0; }
+.config-row:last-child { border-bottom: none; padding-bottom: 0; }
 
-),
+.field-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--je-light-gray);
+  margin-bottom: 6px;
+}
+select {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--je-border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-family: var(--font-sans);
+  color: var(--je-black);
+  background: var(--je-white);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23878787' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 200ms ease;
+}
+select:focus { border-color: var(--je-mid-gray); }
 
-district_map AS (
-  SELECT
-    country_group,
-    district_key,
-    IFNULL(district_key, 'Other') AS district_group
-  FROM base, date_range d
-  WHERE date >= d.start_date
-    AND date < d.end_date
-    AND Category = 'Listing::RealEstateListing'
-    AND (rental = FALSE OR rental IS NULL)
-  GROUP BY 1, 2
-),
+.btn-remove {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--je-border);
+  border-radius: var(--radius);
+  background: var(--je-white);
+  color: var(--je-muted-gray);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 200ms ease;
+  align-self: end;
+}
+.btn-remove:hover { border-color: var(--je-error); color: var(--je-error); background: #fff5f5; }
 
-elp_snapshot AS (
-  SELECT
-    l.country_code, l.adm_level_1, l.adm_level_2, l.locality,
-    COUNT(DISTINCT e.listing_id) AS elp_count
-  FROM `jamesedition-152413.data_marts.pg_promoted_elite_plus_listings` e
-  LEFT JOIN `jamesedition-152413.data_marts.listing_admin_map` l USING (listing_id)
-  WHERE e.active
-  GROUP BY 1, 2, 3,4
-),
+/* ── Config footer ────────────────────────────────────── */
+.config-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--je-divider);
+}
+.btn-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px dashed var(--je-teal-deep);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--je-teal-deep);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: background 200ms ease;
+}
+.btn-add:hover { background: #f0f9fa; }
 
-district_elp AS (
-  SELECT
-    CASE WHEN hs.country_code IS NOT NULL THEN es.country_code ELSE 'GLOBAL' END AS country_group,
-    IFNULL(hs.adm_level_2, 'Other')                                               AS district_key,
-    SUM(es.elp_count)                                                             AS elp_count
-  FROM elp_snapshot es
-  LEFT JOIN hotspots hs
-    ON  es.country_code = hs.country_code
-    AND CASE 
-      WHEN hs.island IS NOT NULL THEN hs.locality = lower(es.locality)
-      WHEN hs.adm_level_2= "Dubai" THEN hs.adm_level_2 = es.adm_level_1
-      ELSE hs.adm_level_2 = es.adm_level_2
-    END
-  GROUP BY 1, 2
-),
+.deal-id-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.deal-id-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--je-light-gray);
+}
+.deal-id-input {
+  padding: 8px 12px;
+  width: 180px;
+  border: 1px solid var(--je-border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-family: var(--font-sans);
+  color: var(--je-black);
+  outline: none;
+  transition: border-color 200ms ease;
+}
+.deal-id-input:focus { border-color: var(--je-mid-gray); }
+.deal-id-input::placeholder { color: var(--je-muted-gray); }
 
-district_elp_grouped AS (
-  SELECT
-    dm.country_group,
-    dm.district_group,
-    SUM(de.elp_count) AS elp_count
-  FROM district_elp de
-  JOIN district_map dm
-    ON  de.country_group = dm.country_group
-    AND IFNULL(de.district_key, 'Other') = dm.district_group
-  GROUP BY 1, 2
-),
+/* ── Pricing grid ─────────────────────────────────────── */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+@media (max-width: 700px) { .pricing-grid { grid-template-columns: 1fr; } }
 
-district_impressions AS (
-  SELECT
-    dm.country_group,
-    dm.district_group,
-    SUM(b.impressions) / 4.0      AS impressions,
-    SUM(b.impressions) / 400000.0 AS ideal_slots
-  FROM base b
-  JOIN district_map dm
-    ON  b.country_group = dm.country_group
-    AND IFNULL(b.district_key, 'Other') = dm.district_group
-  CROSS JOIN date_range d
-  WHERE b.date >= d.start_date
-    AND b.date < d.end_date
-  GROUP BY 1, 2
-),
+/* ── Pricing card ─────────────────────────────────────── */
+.pricing-card {
+  background: var(--je-white);
+  border: 1px solid var(--je-divider);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.pricing-card.elite-plus {
+  border-color: var(--je-gold-dark);
+}
 
-district_agg AS (
-  SELECT
-    dm.country_group                                                                   AS country_code,
-    dm.district_group                                                                  AS state_district,
-    APPROX_QUANTILES(
-      IF(b.lead_count > 0 AND NOT b.price_on_request AND b.account_type LIKE '%elite%' and office_id is null, b.price_eur, NULL),
-      100
-    )[OFFSET(50)]                                                                      AS median_lead_value,
-    MAX(cd.leads_12m_country)   AS leads_12m_country,
-    MAX(cd.dal_country)         AS dal_country,
-    MAX(cd.elp_leads_country)   AS elp_leads_country,
-    MAX(cd.elp_dal_country)     AS elp_dal_country,
-    MAX(deg.elp_count)          AS elp_count,
-    MAX(di.ideal_slots)         AS ideal_slots,
-    MAX(cd.elite_leads_country) AS elite_leads_country,
-    MAX(cd.elite_dal_country)  AS elite_dal_country,
+.card-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--je-divider);
+  position: relative;
+}
+.card-header.elite-plus-header {
+  background: #fdfaf5;
+  border-bottom-color: var(--je-gold-light);
+}
+.card-type {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--je-light-gray);
+  margin-bottom: 4px;
+}
+.card-name {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--je-black);
+  letter-spacing: -0.02em;
+}
+.card-sub {
+  font-size: 13px;
+  color: var(--je-mid-gray);
+  margin-top: 3px;
+}
+.card-elp {
+  font-size: 13px;
+  color: var(--je-teal-deep);
+  font-weight: 500;
+  margin-top: 2px;
+}
+.badge-rec {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: var(--je-gold-dark);
+  color: var(--je-white);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 30px;
+}
 
-    COUNT(DISTINCT IF(
-      b.lead_count > 0 AND NOT b.price_on_request AND b.account_type LIKE '%elite%',
-      b.listing_id, NULL
-    )) AS listings_with_leads,
-    SUM(IF(
-      b.lead_count > 0 AND NOT b.price_on_request AND b.account_type LIKE '%elite%',
-      b.lead_count, 0
-    )) AS total_leads
-    
+/* ── Period row ───────────────────────────────────────── */
+.period-row {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--je-near-white);
+}
+.period-row:last-child { border-bottom: none; }
+.period-row.elite-plus-row { background: #fdfaf5; }
 
+.period-name {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--je-light-gray);
+  margin-bottom: 6px;
+}
+.save-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 30px;
+  margin-bottom: 6px;
+}
+.save-badge.teal { background: var(--je-teal-deep); color: var(--je-white); }
+.save-badge.gold { background: var(--je-gold-dark); color: var(--je-white); }
 
-  FROM base b
-  JOIN district_map dm
-    ON  b.country_group = dm.country_group
-    AND IFNULL(b.district_key, 'Other') = dm.district_group
-  CROSS JOIN date_range d
-  LEFT JOIN country_dal cd           ON b.country_code    = cd.country_code
-  LEFT JOIN district_elp_grouped deg ON dm.country_group  = deg.country_group AND dm.district_group = deg.district_group
-  LEFT JOIN district_impressions di  ON dm.country_group  = di.country_group  AND dm.district_group = di.district_group
-  WHERE b.date >= d.start_date
-    AND b.date < d.end_date
-    AND b.account_type LIKE '%elite%'
-  GROUP BY 1, 2
-  
-),
+.price-amount {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--je-black);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin-bottom: 3px;
+}
+.price-period {
+  font-size: 13px;
+  color: var(--je-light-gray);
+  font-weight: 400;
+}
+.price-monthly {
+  font-size: 12px;
+  color: var(--je-light-gray);
+  margin-top: 2px;
+}
 
-calc AS (
-  SELECT
-    total_leads,
-    country_code,
-    state_district,
-    median_lead_value,
-    CASE country_code
-      WHEN 'PT' THEN 0.03
-      WHEN 'FR' THEN 0.03
-      WHEN 'ES' THEN 0.03
-      WHEN 'US' THEN 0.055
-      WHEN 'CH' THEN 0.025
-      WHEN 'AE' THEN 0.02
-      WHEN 'CA' THEN 0.04
-      WHEN 'GB' then 0.01
-    
-      ELSE            0.03
-    END                                                                        AS agency_commission_by_country,
-    0.03                                                                       AS conversion_to_deal,
-    0.10                                                                       AS take_rate_5,
-    0.08                                                                       AS take_rate_15,
-    0.07                                                                       AS take_rate_30,
-    0.06                                                                       AS take_rate_60,
-    0.05                                                                       AS take_rate_100,
-    0.10                                                                       AS take_rate_elp,
-    (elite_leads_country / 4.0) / NULLIF(elite_dal_country, 0)                 AS leads_per_listing,
-    LEAST((elp_leads_country / 4.0) / NULLIF(elp_dal_country, 0), 4)            AS lead_per_elp_3m,
-    GREATEST(LEAST(COALESCE(elp_count, ideal_slots) / NULLIF(ideal_slots, 0), 1.3), 0.9) AS demand_multiplier
-  FROM district_agg
-)
+/* ── Update deal button ───────────────────────────────── */
+.btn-update {
+  margin-top: 12px;
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--je-border);
+  border-radius: var(--radius);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  color: var(--je-mid-gray);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 200ms ease;
+}
+.btn-update:hover { border-color: var(--je-teal-deep); color: var(--je-teal-deep); background: #f0f9fa; }
+.btn-update:disabled { color: var(--je-muted-gray); border-color: var(--je-divider); cursor: not-allowed; background: transparent; }
+.btn-update.sent { border-color: var(--je-teal-deep); color: var(--je-teal-deep); background: #eaf6f6; }
+.elite-plus-row .btn-update:hover { border-color: var(--je-gold-dark); color: var(--je-gold-dark); background: #fdf7ef; }
+.elite-plus-row .btn-update.sent { border-color: var(--je-gold-dark); color: var(--je-gold-dark); background: #fdf7ef; }
 
-SELECT
-  *,
-  ROUND(median_lead_value * agency_commission_by_country * conversion_to_deal * leads_per_listing * take_rate_5,   2) AS price_per_listing_elite_5,
-  ROUND(median_lead_value * agency_commission_by_country * conversion_to_deal * leads_per_listing * take_rate_15,  2) AS price_per_listing_elite_15,
-  ROUND(median_lead_value * agency_commission_by_country * conversion_to_deal * leads_per_listing * take_rate_30,  2) AS price_per_listing_elite_30,
-  ROUND(median_lead_value * agency_commission_by_country * conversion_to_deal * leads_per_listing * take_rate_60,  2) AS price_per_listing_elite_60,
-  ROUND(median_lead_value * agency_commission_by_country * conversion_to_deal * leads_per_listing * take_rate_100, 2) AS price_per_listing_elite_100,
-  ROUND(median_lead_value * agency_commission_by_country * conversion_to_deal * lead_per_elp_3m  * take_rate_elp * demand_multiplier, 0) AS price_per_elp_3m
-FROM calc
-WHERE total_leads/4 >= 80
-and country_code in ("PT", "FR", "ES", "GB","GR","IT")
+/* ── Breakdown table ──────────────────────────────────── */
+.breakdown-card {
+  background: var(--je-white);
+  border: 1px solid var(--je-divider);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.breakdown-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--je-divider);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--je-light-gray);
+}
+.tab-bar { display: flex; border-bottom: 1px solid var(--je-divider); padding: 0 24px; background: var(--je-white); }
+.tab-btn { padding: 12px 18px; font-size: 13px; font-weight: 600; color: var(--je-muted-gray); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-family: var(--font-sans); margin-bottom: -1px; transition: color 200ms, border-color 200ms; }
+.tab-btn.active { color: var(--je-black); border-bottom-color: var(--je-teal-deep); }
+.tab-btn:hover:not(.active) { color: var(--je-mid-gray); }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th {
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--je-light-gray);
+  border-bottom: 1px solid var(--je-divider);
+  white-space: nowrap;
+}
+td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--je-near-white);
+  color: var(--je-black);
+}
+tr.total-row td {
+  font-weight: 600;
+  border-top: 1px solid var(--je-divider);
+  border-bottom: none;
+  background: var(--je-near-white);
+}
+tr:last-child td { border-bottom: none; }
+.region-hint { font-size: 11px; color: var(--je-teal-deep); font-weight: 500; }
+
+/* ── Status / Toast ───────────────────────────────────── */
+.hs-status {
+  padding: 12px 24px;
+  font-size: 13px;
+  border-top: 1px solid var(--je-divider);
+  display: none;
+}
+.hs-status.success { background: #eaf6f5; color: var(--je-teal-deep); display: block; }
+.hs-status.error   { background: #fef2f2; color: var(--je-error); display: block; }
+.hs-status.loading { background: var(--je-near-white); color: var(--je-mid-gray); display: block; }
+
+/* ── Empty ────────────────────────────────────────────── */
+.empty {
+  background: var(--je-white);
+  border: 1px solid var(--je-divider);
+  border-radius: var(--radius);
+  padding: 56px 32px;
+  text-align: center;
+  color: var(--je-light-gray);
+  font-size: 14px;
+}
+
+/* ── Footer ───────────────────────────────────────────── */
+.footer {
+  text-align: center;
+  padding: 32px 0 0;
+  font-size: 11px;
+  color: var(--je-muted-gray);
+  letter-spacing: 0.04em;
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-brand">
+    <div class="header-logo">
+      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="5" height="5" fill="white"/>
+        <rect x="9" y="2" width="5" height="5" fill="white"/>
+        <rect x="2" y="9" width="5" height="5" fill="white"/>
+        <rect x="9" y="9" width="5" height="5" fill="white" opacity="0.4"/>
+      </svg>
+    </div>
+    <span class="header-title">Price Calculator</span>
+  </div>
+  <span class="header-meta">Data refreshed Apr 2026</span>
+</header>
+
+<div class="wrap">
+
+  <!-- Config -->
+  <div class="config-card">
+    <div class="config-rows" id="rows-container"></div>
+    <div class="config-footer">
+      <button class="btn-add" id="btn-add">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Add Location
+      </button>
+      <div class="deal-id-wrap">
+        <svg width="16" height="16" viewBox="0 0 56 56" fill="none"><circle cx="28" cy="28" r="28" fill="#FF7A59"/><path d="M22 16v10.5M22 26.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM34 22.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm0-3v7.5m0 0a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11Z" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>
+        <span class="deal-id-label">Deal ID</span>
+        <input type="text" id="hs-deal-id" class="deal-id-input" placeholder="e.g. 12345678">
+      </div>
+    </div>
+  </div>
+
+  <div id="output"></div>
+
+  <div class="footer">JamesEdition · BigQuery · 12-month rolling window · Real estate, excl. rentals</div>
+</div>
+
+<script>
+var N8N_WEBHOOK_URL = "https://james-edition.app.n8n.cloud/webhook/price-calculator-hs";
+
+var COUNTRY_NAMES = { AE:"UAE 🇦🇪", CH:"Switzerland 🇨🇭", ES:"Spain 🇪🇸", FR:"France 🇫🇷", GB:"United Kingdom 🇬🇧", GR:"Greece 🇬🇷", IT:"Italy 🇮🇹", PT:"Portugal 🇵🇹", US:"United States 🇺🇸", ZA:"South Africa 🇿🇦", Other:"Rest of the World 🌍" };
+
+var ALL_DATA = {
+  AE: [
+    { district:"Other", price_elite_5:115.13, price_elite_15:92.10,  price_elite_30:80.59,  price_elite_60:69.08,  price_elite_100:57.57, price_elp_3m:340.00 },
+  ],
+  CH: [
+    { district:"Other", price_elite_5:118.18, price_elite_15:94.54,  price_elite_30:82.73,  price_elite_60:70.91,  price_elite_100:59.09, price_elp_3m:425.00 },
+  ],
+  ES: [
+    { district:"Alicante",  price_elite_5:19.59, price_elite_15:15.67, price_elite_30:13.71, price_elite_60:11.75, price_elite_100:9.79,  price_elp_3m:182.00 },
+    { district:"Barcelona", price_elite_5:22.09, price_elite_15:17.67, price_elite_30:15.46, price_elite_60:13.25, price_elite_100:11.04, price_elp_3m:142.00 },
+    { district:"Cádiz",     price_elite_5:34.04, price_elite_15:27.23, price_elite_30:23.82, price_elite_60:20.42, price_elite_100:17.02, price_elp_3m:219.00 },
+    { district:"Girona",    price_elite_5:22.31, price_elite_15:17.85, price_elite_30:15.62, price_elite_60:13.39, price_elite_100:11.16, price_elp_3m:155.00 },
+    { district:"Ibiza",     price_elite_5:48.41, price_elite_15:38.72, price_elite_30:33.88, price_elite_60:29.04, price_elite_100:24.20, price_elp_3m:311.00 },
+    { district:"Madrid",    price_elite_5:40.84, price_elite_15:32.67, price_elite_30:28.59, price_elite_60:24.51, price_elite_100:20.42, price_elp_3m:352.00 },
+    { district:"Mallorca",  price_elite_5:42.36, price_elite_15:33.88, price_elite_30:29.65, price_elite_60:25.41, price_elite_100:21.18, price_elp_3m:272.00 },
+    { district:"Málaga",    price_elite_5:40.09, price_elite_15:32.07, price_elite_30:28.06, price_elite_60:24.05, price_elite_100:20.04, price_elp_3m:274.00 },
+    { district:"Other",     price_elite_5:22.39, price_elite_15:17.91, price_elite_30:15.67, price_elite_60:13.43, price_elite_100:11.19, price_elp_3m:159.00 },
+  ],
+  FR: [
+    { district:"Alpes-Maritimes", price_elite_5:49.70,  price_elite_15:39.76,  price_elite_30:34.79,  price_elite_60:29.82,  price_elite_100:24.85,  price_elp_3m:308.00 },
+    { district:"Paris",           price_elite_5:45.52,  price_elite_15:36.42,  price_elite_30:31.87,  price_elite_60:27.31,  price_elite_100:22.76,  price_elp_3m:282.00 },
+    { district:"Var",             price_elite_5:59.62,  price_elite_15:47.69,  price_elite_30:41.73,  price_elite_60:35.77,  price_elite_100:29.81,  price_elp_3m:369.00 },
+    { district:"Other",           price_elite_5:32.29,  price_elite_15:25.84,  price_elite_30:22.61,  price_elite_60:19.38,  price_elite_100:16.15,  price_elp_3m:201.00 },
+  ],
+  GB: [
+    { district:"Greater London", price_elite_5:56.34, price_elite_15:45.07, price_elite_30:39.44, price_elite_60:33.80, price_elite_100:28.17, price_elp_3m:358.00 },
+    { district:"Other",          price_elite_5:20.49, price_elite_15:16.39, price_elite_30:14.34, price_elite_60:12.29, price_elite_100:10.24, price_elp_3m:130.00 },
+  ],
+  GR: [
+    { district:"Attica",          price_elite_5:19.22, price_elite_15:15.38, price_elite_30:13.46, price_elite_60:11.53, price_elite_100:9.61,  price_elp_3m:201.00 },
+    { district:"Crete",           price_elite_5:18.40, price_elite_15:14.72, price_elite_30:12.88, price_elite_60:11.04, price_elite_100:9.20,  price_elp_3m:233.00 },
+    { district:"Ionian Islands",  price_elite_5:24.99, price_elite_15:19.99, price_elite_30:17.49, price_elite_60:14.99, price_elite_100:12.49, price_elp_3m:204.00 },
+    { district:"Southern Aegean", price_elite_5:23.71, price_elite_15:18.97, price_elite_30:16.60, price_elite_60:14.22, price_elite_100:11.85, price_elp_3m:214.00 },
+    { district:"Other",           price_elite_5:17.91, price_elite_15:14.33, price_elite_30:12.54, price_elite_60:10.75, price_elite_100:8.96,  price_elp_3m:187.00 },
+  ],
+  IT: [
+    { district:"Metropolitan City Of Florence",   price_elite_5:98.51,  price_elite_15:78.81, price_elite_30:68.96, price_elite_60:59.10, price_elite_100:49.25, price_elp_3m:361.00 },
+    { district:"Metropolitan City Of Milan",      price_elite_5:95.85,  price_elite_15:76.68, price_elite_30:67.09, price_elite_60:57.51, price_elite_100:47.92, price_elp_3m:449.00 },
+    { district:"Metropolitan City Of Rome",       price_elite_5:90.64,  price_elite_15:72.51, price_elite_30:63.45, price_elite_60:54.38, price_elite_100:45.32, price_elp_3m:295.00 },
+    { district:"Province Of Arezzo",              price_elite_5:62.54,  price_elite_15:50.04, price_elite_30:43.78, price_elite_60:37.53, price_elite_100:31.27, price_elp_3m:262.00 },
+    { district:"Province Of Brescia",             price_elite_5:72.00,  price_elite_15:57.60, price_elite_30:50.40, price_elite_60:43.20, price_elite_100:36.00, price_elp_3m:250.00 },
+    { district:"Province Of Como",                price_elite_5:74.53,  price_elite_15:59.63, price_elite_30:52.17, price_elite_60:44.72, price_elite_100:37.27, price_elp_3m:242.00 },
+    { district:"Province Of Grosseto",            price_elite_5:88.61,  price_elite_15:70.88, price_elite_30:62.02, price_elite_60:53.16, price_elite_100:44.30, price_elp_3m:293.00 },
+    { district:"Province Of Imperia",             price_elite_5:74.25,  price_elite_15:59.40, price_elite_30:51.98, price_elite_60:44.55, price_elite_100:37.13, price_elp_3m:322.00 },
+    { district:"Province Of Lucca",               price_elite_5:104.24, price_elite_15:83.39, price_elite_30:72.97, price_elite_60:62.54, price_elite_100:52.12, price_elp_3m:404.00 },
+    { district:"Province Of Perugia",             price_elite_5:65.15,  price_elite_15:52.12, price_elite_30:45.61, price_elite_60:39.09, price_elite_100:32.58, price_elp_3m:212.00 },
+    { district:"Province Of Sassari",             price_elite_5:81.83,  price_elite_15:65.46, price_elite_30:57.28, price_elite_60:49.10, price_elite_100:40.91, price_elp_3m:266.00 },
+    { district:"Province Of Verbano-Cusio-Ossola",price_elite_5:99.00,  price_elite_15:79.20, price_elite_30:69.30, price_elite_60:59.40, price_elite_100:49.50, price_elp_3m:496.00 },
+    { district:"Provincia Di Siena",              price_elite_5:88.61,  price_elite_15:70.88, price_elite_30:62.02, price_elite_60:53.16, price_elite_100:44.30, price_elp_3m:288.00 },
+    { district:"Other",                           price_elite_5:68.04,  price_elite_15:54.44, price_elite_30:47.63, price_elite_60:40.83, price_elite_100:34.02, price_elp_3m:225.00 },
+  ],
+  Other: [
+    { district:"Rest of the World", price_elite_5:12.49, price_elite_15:9.99, price_elite_30:8.75, price_elite_60:7.50, price_elite_100:6.25, price_elp_3m:195.00 },
+  ],
+  PT: [
+    { district:"Cascais", price_elite_5:35.02, price_elite_15:28.01, price_elite_30:24.51, price_elite_60:21.01, price_elite_100:17.51, price_elp_3m:215.00 },
+    { district:"Lisbon",  price_elite_5:21.96, price_elite_15:17.57, price_elite_30:15.38, price_elite_60:13.18, price_elite_100:10.98, price_elp_3m:157.00 },
+    { district:"Other",   price_elite_5:20.56, price_elite_15:16.44, price_elite_30:14.39, price_elite_60:12.33, price_elite_100:10.28, price_elp_3m:131.00 },
+  ],
+  US: [
+    { district:"Los Angeles County", price_elite_5:134.21, price_elite_15:107.37, price_elite_30:93.95, price_elite_60:80.53, price_elite_100:67.10, price_elp_3m:1409.00 },
+    { district:"Miami-Dade County",  price_elite_5:55.92,  price_elite_15:44.74,  price_elite_30:39.15, price_elite_60:33.55, price_elite_100:27.96, price_elp_3m:587.00  },
+    { district:"New York County",    price_elite_5:71.58,  price_elite_15:57.26,  price_elite_30:50.10, price_elite_60:42.95, price_elite_100:35.79, price_elp_3m:835.00  },
+    { district:"Other",              price_elite_5:75.28,  price_elite_15:60.23,  price_elite_30:52.70, price_elite_60:45.17, price_elite_100:37.64, price_elp_3m:802.00  },
+  ],
+  ZA: [
+    { district:"Other", price_elite_5:41.23, price_elite_15:32.98, price_elite_30:28.86, price_elite_60:24.74, price_elite_100:20.61, price_elp_3m:148.00 },
+  ],
+}
+var COMPONENTS_DATA = {
+  AE:    { "Other": { median:5537741,  commission:0.015, leads_per_listing:0.4620, lead_per_elp_3m:1.4922, demand_multiplier:0.914 } },
+  CH:    { "Other": { median:3939329,  commission:0.020, leads_per_listing:0.5000, lead_per_elp_3m:2.0000, demand_multiplier:0.900 } },
+  ES: {
+    "Alicante":  { median:1295000, commission:0.03, leads_per_listing:0.1681, lead_per_elp_3m:1.2006, demand_multiplier:1.300 },
+    "Barcelona": { median:1460000, commission:0.03, leads_per_listing:0.1681, lead_per_elp_3m:1.2006, demand_multiplier:0.900 },
+    "Cádiz":     { median:2250000, commission:0.03, leads_per_listing:0.1681, lead_per_elp_3m:1.2006, demand_multiplier:0.900 },
+    "Girona":    { median:1495000, commission:0.03, leads_per_listing:0.1681, lead_per_elp_3m:1.2006, demand_multiplier:0.900 },
+    "Ibiza":     { median:3200000, commission:0.03, leads_per_listing:0.1681, lead_per_elp_3m:1.2006, demand_multiplier:0.900 },
+    "Madrid":    { median:2700000, commission:0.03, leads_per_listing:0.1681, lead_per_elp_3m:1.2006, demand_multiplier:1.205 },
+    "Mallorca":  { median:2800000, commission:0.03, leads_per_listing:0.1681, lead_per_elp_3m:1.2006, demand_multiplier:0.900 },
+    "Málaga":    { median:2650000, commission:0.03, leads_per_listing:0.1681, lead_per_elp_3m:1.2006, demand_multiplier:0.958 },
+    "Other":     { median:1480077, commission:0.03, leads_per_listing:0.1681, lead_per_elp_3m:1.2006, demand_multiplier:0.991 },
+  },
+  FR: {
+    "Alpes-Maritimes": { median:2500000,  commission:0.03, leads_per_listing:0.2209, lead_per_elp_3m:1.5200, demand_multiplier:0.900 },
+    "Paris":           { median:2290000,  commission:0.03, leads_per_listing:0.2209, lead_per_elp_3m:1.5200, demand_multiplier:0.900 },
+    "Var":             { median:2999000,  commission:0.03, leads_per_listing:0.2209, lead_per_elp_3m:1.5200, demand_multiplier:0.900 },
+    "Other":           { median:1624507,  commission:0.03, leads_per_listing:0.2209, lead_per_elp_3m:1.5200, demand_multiplier:0.905 },
+  },
+  GB: {
+    "Greater London": { median:5096533,  commission:0.013, leads_per_listing:0.2834, lead_per_elp_3m:2.0000, demand_multiplier:0.900 },
+    "Other":          { median:1853464,  commission:0.013, leads_per_listing:0.2834, lead_per_elp_3m:2.0000, demand_multiplier:0.900 },
+  },
+  GR: {
+    "Attica":          { median:1500000, commission:0.03, leads_per_listing:0.1424, lead_per_elp_3m:1.1429, demand_multiplier:1.300 },
+    "Crete":           { median:1500000, commission:0.03, leads_per_listing:0.1424, lead_per_elp_3m:1.1429, demand_multiplier:1.300 },
+    "Ionian Islands":  { median:1950000, commission:0.03, leads_per_listing:0.1424, lead_per_elp_3m:1.1429, demand_multiplier:1.018 },
+    "Southern Aegean": { median:1850000, commission:0.03, leads_per_listing:0.1424, lead_per_elp_3m:1.1429, demand_multiplier:1.127 },
+    "Other":           { median:1397942, commission:0.03, leads_per_listing:0.1424, lead_per_elp_3m:1.1429, demand_multiplier:1.300 },
+  },
+  IT: {
+    "Metropolitan City Of Florence":   { median:1890000, commission:0.03, leads_per_listing:0.5791, lead_per_elp_3m:2.0913, demand_multiplier:1.015 },
+    "Metropolitan City Of Milan":      { median:1839000, commission:0.03, leads_per_listing:0.5791, lead_per_elp_3m:2.0913, demand_multiplier:1.296 },
+    "Metropolitan City Of Rome":       { median:1739000, commission:0.03, leads_per_listing:0.5791, lead_per_elp_3m:2.0913, demand_multiplier:0.900 },
+    "Province Of Arezzo":              { median:1200000, commission:0.03, leads_per_listing:0.5791, lead_per_elp_3m:2.0913, demand_multiplier:1.162 },
+    "Province Of Brescia":             { median:1600000, commission:0.03, leads_per_listing:0.5791, lead_per_elp_3m:2.0913, demand_multiplier:0.900 },
+    "Province Of Como":                { median:1430000, commission:0.03, leads_per_listing:0.5791, lead_per_elp_3m:2.0913, demand_multiplier:0.900 },
+    "Province Of Grosseto":            { median:1700000, commission:0.03, leads_per_listing:0.5791, lead_per_elp_3m:2.0913, demand_multiplier:0.915 },
+    "Province Of Imperia":             { median:1650000, commission:0.03, leads_per_listing:0.5791, lead_per_elp_3m:2.0913, demand_multiplier:0.900 },
+    "Province Of Lucca":               { median:2000000, commission:0.03, leads_per_listing:0.5791, lead_per_elp_3m:2.0913, demand_multiplier:1.072 },
+    "Province Of Perugia":             { median:1250000, commission:0.03, leads_per_listing:0.5791, lead_per_elp_3m:2.0913, demand_multiplier:0.900 },
+    "Province Of Sassari":             { median:1570000, commission:0.03, leads_per_listing:0.5791, lead_per_elp_3m:2.0913, demand_multiplier:0.900 },
+    "Province Of Verbano-Cusio-Ossola":{ median:2200000, commission:0.03, leads_per_listing:0.5791, lead_per_elp_3m:2.0913, demand_multiplier:0.900 },
+    "Provincia Di Siena":              { median:1700000, commission:0.03, leads_per_listing:0.5791, lead_per_elp_3m:2.0913, demand_multiplier:0.900 },
+    "Other":                           { median:1305507, commission:0.03, leads_per_listing:0.5791, lead_per_elp_3m:2.0913, demand_multiplier:0.914 },
+  },
+  Other: { "Rest of the World": { median:2027876, commission:0.02, leads_per_listing:0.1027, lead_per_elp_3m:1.7125, demand_multiplier:0.934 } },
+  PT: {
+    "Cascais": { median:2200000, commission:0.03, leads_per_listing:0.1769, lead_per_elp_3m:1.2073, demand_multiplier:0.900 },
+    "Lisbon":  { median:1380000, commission:0.03, leads_per_listing:0.1769, lead_per_elp_3m:1.2073, demand_multiplier:1.050 },
+    "Other":   { median:1291487, commission:0.03, leads_per_listing:0.1769, lead_per_elp_3m:1.2073, demand_multiplier:0.930 },
+  },
+  US: {
+    "Los Angeles County": { median:8694480,  commission:0.03, leads_per_listing:0.1715, lead_per_elp_3m:2.0000, demand_multiplier:0.900 },
+    "Miami-Dade County":  { median:3622925,  commission:0.03, leads_per_listing:0.1715, lead_per_elp_3m:2.0000, demand_multiplier:0.900 },
+    "New York County":    { median:4637024,  commission:0.03, leads_per_listing:0.1715, lead_per_elp_3m:2.0000, demand_multiplier:1.000 },
+    "Other":              { median:4877174,  commission:0.03, leads_per_listing:0.1715, lead_per_elp_3m:2.0000, demand_multiplier:0.914 },
+  },
+  ZA:    { "Other": { median:916170, commission:0.030, leads_per_listing:0.5000, lead_per_elp_3m:2.0000, demand_multiplier:0.900 } },
+};
+var TIERS = [
+  { label:"0",      count:0,   elps:0, priceKey:"price_elite_60"  },
+  { label:"1–5",    count:5,   elps:1, priceKey:"price_elite_5"   },
+  { label:"6–15",   count:15,  elps:2, priceKey:"price_elite_15"  },
+  { label:"16–30",  count:30,  elps:3, priceKey:"price_elite_30"  },
+  { label:"31–60",  count:60,  elps:5, priceKey:"price_elite_60"  },
+  { label:"61–100", count:100, elps:7, priceKey:"price_elite_100" },
+];
+
+var rows = [], nextId = 0, lastPricing = null;
+
+function psych(v) {
+  if (v <= 0) return 0;
+  if (v < 1000)  return Math.round(v / 10) * 10;
+  if (v < 10000) return Math.round(v / 100) * 100;
+  return Math.round(v / 500) * 500;
+}
+function fmt(v) { return "€" + v.toLocaleString("en-US"); }
+function fmtDec(v) { return "€" + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+
+function getDistrictData(cc, loc) {
+  var ds = ALL_DATA[cc] || [];
+  if (loc === "__whole__") {
+    // Single-district countries — just return that district, no source label
+    if (ds.length === 1) return { data: ds[0], source: null };
+    var excludeFromWhole = ["Province Of Verbano-Cusio-Ossola", "Province Of Imperia"];
+    var best = ds[0];
+    for (var i = 1; i < ds.length; i++) {
+      if (ds[i].district !== "Other" && excludeFromWhole.indexOf(ds[i].district) === -1 && ds[i].price_elite_60 > best.price_elite_60) best = ds[i];
+    }
+    return { data: best, source: best.district };
+  }
+  for (var i = 0; i < ds.length; i++) { if (ds[i].district === loc) return { data: ds[i], source: null }; }
+  return { data: ds[0], source: null };
+}
+
+function addRow(cc, loc, ti, elps) {
+  var id = nextId++;
+  ti = ti || 0;
+  rows.push({ id: id, country: cc || "ES", loc: loc || "__whole__", tierIdx: ti, elps: elps != null ? elps : Math.max(1, TIERS[ti].elps) });
+  renderRows(); render();
+}
+
+function removeRow(id) {
+  rows = rows.filter(function(r){ return r.id !== id; });
+  renderRows(); render();
+}
+
+function buildDistrictOptions(cc, sel) {
+  var ds = ALL_DATA[cc] || [];
+  // Single-district countries — just show Whole Country, skip the district
+  if (ds.length === 1 && (ds[0].district === 'Other' || ds[0].district === 'Rest of the World')) {
+    return '<option value="__whole__" selected>Whole Country</option>';
+  }
+  var h = '';
+  if (cc !== 'Other') {
+    h += '<option value="__whole__"' + (sel === "__whole__" ? " selected" : "") + '>Whole Country</option>';
+  }
+  ds.forEach(function(d){ h += '<option value="' + d.district + '"' + (sel === d.district ? " selected" : "") + '>' + d.district + '</option>'; });
+  return h;
+}
+
+function renderRows() {
+  var c = document.getElementById("rows-container");
+  c.innerHTML = "";
+  rows.forEach(function(r) {
+    var div = document.createElement("div");
+    div.className = "config-row";
+    var showX = rows.length > 1;
+    var h = '<div><label class="field-label">Country</label><select class="sel-country" data-id="' + r.id + '">';
+    Object.keys(COUNTRY_NAMES).sort(function(a,b){ if(a==='Other') return 1; if(b==='Other') return -1; return a.localeCompare(b); }).forEach(function(k){ h += '<option value="' + k + '"' + (r.country===k?" selected":"") + '>' + COUNTRY_NAMES[k] + '</option>'; });
+    h += '</select></div>';
+    h += '<div><label class="field-label">Region / Province</label><select class="sel-loc" data-id="' + r.id + '">' + buildDistrictOptions(r.country, r.loc) + '</select></div>';
+    h += '<div><label class="field-label">Listings</label><select class="sel-tier" data-id="' + r.id + '">';
+    TIERS.forEach(function(t, j){
+      
+      h += '<option value="' + j + '"' + (r.tierIdx===j?" selected":"") + '>' + t.label + '</option>';
+    });
+    h += '</select></div>';
+    h += '<div><label class="field-label">ELPs</label><select class="sel-elps" data-id="' + r.id + '">';
+    for (var j = 1; j <= 20; j++) h += '<option value="' + j + '"' + (r.elps===j?" selected":"") + '>' + j + '</option>';
+    h += '</select></div>';
+    h += showX ? '<button class="btn-remove" data-id="' + r.id + '" style="align-self:end">×</button>' : '<div></div>';
+    div.innerHTML = h;
+    c.appendChild(div);
+  });
+
+  c.querySelectorAll(".sel-country").forEach(function(el){
+    el.addEventListener("change", function(){
+      var id = parseInt(this.getAttribute("data-id"));
+      rows.forEach(function(r){ if(r.id===id){ r.country=el.value; r.loc='__whole__'; } });
+      renderRows(); render();
+    });
+  });
+  c.querySelectorAll(".sel-loc").forEach(function(el){
+    el.addEventListener("change", function(){
+      var id = parseInt(this.getAttribute("data-id"));
+      rows.forEach(function(r){ if(r.id===id) r.loc=el.value; });
+      render();
+    });
+  });
+  c.querySelectorAll(".sel-tier").forEach(function(el){
+    el.addEventListener("change", function(){
+      var id = parseInt(this.getAttribute("data-id")), nt = parseInt(el.value);
+      rows.forEach(function(r){ if(r.id===id){ r.tierIdx=nt; r.elps=Math.max(1,TIERS[nt].elps); } });
+      renderRows(); render();
+    });
+  });
+  c.querySelectorAll(".sel-elps").forEach(function(el){
+    el.addEventListener("change", function(){
+      var id = parseInt(this.getAttribute("data-id"));
+      rows.forEach(function(r){ if(r.id===id) r.elps=parseInt(el.value); });
+      render();
+    });
+  });
+  c.querySelectorAll(".btn-remove").forEach(function(el){
+    el.addEventListener("click", function(){ removeRow(parseInt(this.getAttribute("data-id"))); });
+  });
+}
+
+function render() {
+  var $o = document.getElementById("output");
+  var rowCalcs = [], totalListings = 0, totalElps = 0, hasAny = false;
+
+  rows.forEach(function(r){
+    var tier = TIERS[r.tierIdx], info = getDistrictData(r.country, r.loc), d = info.data;
+    if (!d || tier.count === 0) { rowCalcs.push(null); return; }
+    hasAny = true;
+    var cnt = tier.count, re = r.elps, pe = d[tier.priceKey];
+    totalListings += cnt; totalElps += re;
+    rowCalcs.push({
+      country: r.country, loc: r.loc === "__whole__" ? "Whole Country" : r.loc,
+      source: info.source, tier: tier, cnt: cnt, elps: re,
+      e3r: pe*cnt, e6r: pe*2*0.9*cnt, e12r: pe*4*0.8*cnt,
+      elp3r: d.price_elp_3m*re, elp6r: d.price_elp_3m*2*0.9*re, elp12r: d.price_elp_3m*4*0.8*re,
+    });
+  });
+
+  if (!hasAny) {
+    lastPricing = null;
+    $o.innerHTML = '<div class="empty">Select a listing tier to see pricing.</div>';
+    return;
+  }
+
+  var e3=0,e6=0,e12=0,elp3=0,elp6=0,elp12=0;
+  rowCalcs.forEach(function(rc){ if(!rc) return;
+    e3+=psych(rc.e3r); e6+=psych(rc.e6r); e12+=psych(rc.e12r);
+    elp3+=psych(rc.elp3r); elp6+=psych(rc.elp6r); elp12+=psych(rc.elp12r);
+  });
+  e3=Math.max(e3,300); e6=Math.max(e6,570); e12=Math.max(e12,1080);
+  var ep3=e3+elp3, ep6=e6+elp6, ep12=e12+elp12;
+  var eS6=Math.max(e3*2-e6,0), eS12=Math.max(e3*4-e12,0);
+  var epS6=Math.max(ep3*2-ep6,0), epS12=Math.max(ep3*4-ep12,0);
+
+  var active = rowCalcs.filter(function(r){ return r; });
+  var tierLabels = active.map(function(r){ return r.tier.label; }).join(" + ") + " Listings";
+  var provinceSummary = active.map(function(rc){ return (COUNTRY_NAMES[rc.country]||rc.country) + " — " + rc.loc + (rc.source?" ("+rc.source+")":"") + ": " + rc.tier.label + " listings, " + rc.elps + " ELPs"; }).join("\n");
+  var provinceLabel = active.map(function(rc){ return rc.loc; }).join(", ");
+  var countryLabel  = active.map(function(rc){ return rc.country; }).join(", ");
+
+  lastPricing = {
+    elite_3m:e3, elite_6m:e6, elite_12m:e12, ep_3m:ep3, ep_6m:ep6, ep_12m:ep12,
+    totalListings:totalListings, totalElps:totalElps,
+    listingLabel:tierLabels, provinceSummary:provinceSummary, provinceLabel:provinceLabel, countryLabel:countryLabel,
+  };
+
+  var hsIcon = '<svg width="12" height="12" viewBox="0 0 56 56" fill="none"><circle cx="28" cy="28" r="28" fill="#FF7A59"/><path d="M22 16v10.5M22 26.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM34 22.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm0-3v7.5m0 0a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11Z" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>';
+
+  var periods = [
+    { label:"3 Months",  mo:3,  eT:e3,  epT:ep3,  eS:0,    epS:0    },
+    { label:"6 Months",  mo:6,  eT:e6,  epT:ep6,  eS:eS6,  epS:epS6  },
+    { label:"12 Months", mo:12, eT:e12, epT:ep12, eS:eS12, epS:epS12 },
+  ];
+  var planKeys = ["elite_3m","elite_6m","elite_12m"];
+  var epKeys   = ["ep_3m","ep_6m","ep_12m"];
+
+  // ── Pricing cards ──
+  var h = '<div class="pricing-grid">';
+
+  // Elite card
+  h += '<div class="pricing-card">';
+  h += '<div class="card-header"><div class="card-type">Subscription</div><div class="card-name">Elite</div><div class="card-sub">' + tierLabels + '</div><div class="card-sub" style="visibility:hidden">_</div></div>';
+  periods.forEach(function(p, i){
+    h += '<div class="period-row"><div class="period-name">' + p.label + '</div>';
+    if (p.eS > 0) h += '<div><span class="save-badge teal">Save ' + fmt(p.eS) + '</span></div>';
+    h += '<div class="price-amount">' + fmt(p.eT) + '</div>';
+    h += '<div class="price-monthly">' + fmtDec(p.eT/p.mo) + ' / month</div>';
+    h += '<button class="btn-update" data-plan="' + planKeys[i] + '">' + hsIcon + 'Update Deal</button>';
+    h += '</div>';
+  });
+  h += '</div>';
+
+  // Elite Plus card
+  h += '<div class="pricing-card elite-plus">';
+  h += '<div class="card-header elite-plus-header"><span class="badge-rec">Recommended</span><div class="card-type">Subscription + Promoted Listings</div><div class="card-name">Elite Plus</div><div class="card-sub">' + tierLabels + '</div><div class="card-elp">' + totalElps + ' Promoted Listing' + (totalElps!==1?'s':'') + '</div></div>';
+  periods.forEach(function(p, i){
+    h += '<div class="period-row elite-plus-row"><div class="period-name">' + p.label + '</div>';
+    if (p.epS > 0) h += '<div><span class="save-badge gold">Save ' + fmt(p.epS) + '</span></div>';
+    h += '<div class="price-amount">' + fmt(p.epT) + '</div>';
+    h += '<div class="price-monthly">' + fmtDec(p.epT/p.mo) + ' / month</div>';
+    h += '<button class="btn-update" data-plan="' + epKeys[i] + '">' + hsIcon + 'Update Deal</button>';
+    h += '</div>';
+  });
+  h += '</div>';
+
+  h += '</div>'; // end pricing-grid
+
+  // ── Breakdown table ──
+  h += '<div class="breakdown-card">';
+  h += '<div class="tab-bar">';
+  h += '<button class="tab-btn active" onclick="showTab(this,\'tab-prices\')">Prices</button>';
+  h += '<button class="tab-btn" onclick="showTab(this,\'tab-components\')">Components</button>';
+  h += '</div>';
+
+  // Tab 1: Prices
+  h += '<div id="tab-prices" class="tab-pane active"><div class="tbl-wrap"><table><thead><tr>';
+  h += '<th>Country</th><th>Region</th><th>Listings</th><th>ELPs</th>';
+  h += '<th>Elite 3m</th><th>Elite 6m</th><th>Elite 12m</th>';
+  h += '<th>Elite+ 3m</th><th>Elite+ 6m</th><th>Elite+ 12m</th>';
+  h += '</tr></thead><tbody>';
+
+  active.forEach(function(rc){
+    var rl = rc.loc + (rc.source ? ' <span class="region-hint">(' + rc.source + ')</span>' : '');
+    var te3,te6,te12,tep3,tep6,tep12;
+    if (active.length === 1) {
+      te3=e3; te6=e6; te12=e12; tep3=ep3; tep6=ep6; tep12=ep12;
+    } else {
+      te3=psych(rc.e3r); te6=psych(rc.e6r); te12=psych(rc.e12r);
+      tep3=te3+psych(rc.elp3r); tep6=te6+psych(rc.elp6r); tep12=te12+psych(rc.elp12r);
+    }
+    h += '<tr>';
+    h += '<td>' + (COUNTRY_NAMES[rc.country]||rc.country) + '</td>';
+    h += '<td>' + rl + '</td>';
+    h += '<td>' + rc.tier.label + '</td><td>' + rc.elps + '</td>';
+    h += '<td>'+fmt(te3)+'</td><td>'+fmt(te6)+'</td><td>'+fmt(te12)+'</td>';
+    h += '<td>'+fmt(tep3)+'</td><td>'+fmt(tep6)+'</td><td>'+fmt(tep12)+'</td>';
+    h += '</tr>';
+  });
+  if (active.length > 1) {
+    h += '<tr class="total-row"><td colspan="2">Total</td><td>'+totalListings+'</td><td>'+totalElps+'</td>';
+    h += '<td>'+fmt(e3)+'</td><td>'+fmt(e6)+'</td><td>'+fmt(e12)+'</td>';
+    h += '<td>'+fmt(ep3)+'</td><td>'+fmt(ep6)+'</td><td>'+fmt(ep12)+'</td>';
+    h += '</tr>';
+  }
+  h += '</tbody></table></div></div>';
+
+  // Tab 2: Components
+  h += '<div id="tab-components" class="tab-pane"><div class="tbl-wrap"><table><thead><tr>';
+  h += '<th>Country</th><th>Region</th><th>Median Lead Value</th><th>Commission</th>';
+  h += '<th>Leads / Listing</th><th>Lead / ELP (3m)</th><th>Demand Mult.</th>';
+  h += '</tr></thead><tbody>';
+  var seen = {};
+  active.forEach(function(rc) {
+    var distKey = rc.country + '::' + rc.loc;
+    if (seen[distKey]) return;
+    seen[distKey] = true;
+    var lookupLoc = rc.source || (rc.loc === 'Whole Country' ? Object.keys((COMPONENTS_DATA[rc.country]||{}))[0] : rc.loc);
+    var cdata = (COMPONENTS_DATA[rc.country] || {})[lookupLoc] || {};
+    var median = cdata.median ? '€' + Math.round(cdata.median).toLocaleString('en-US') : '—';
+    var commPct = cdata.commission ? cdata.commission * 100 : null;
+    var comm = commPct !== null ? (Number.isInteger(commPct) ? commPct : commPct.toFixed(1)) + '%' : '—';
+    var lpl   = cdata.leads_per_listing !== undefined ? cdata.leads_per_listing : '—';
+    var lelp  = cdata.lead_per_elp_3m   !== undefined ? cdata.lead_per_elp_3m   : '—';
+    var dmult = cdata.demand_multiplier  !== undefined ? cdata.demand_multiplier + '×' : '—';
+    var rl = rc.loc + (rc.source ? ' <span class="region-hint">(' + rc.source + ')</span>' : '');
+    h += '<tr>';
+    h += '<td>' + (COUNTRY_NAMES[rc.country]||rc.country) + '</td>';
+    h += '<td>' + rl + '</td>';
+    h += '<td>' + median + '</td><td>' + comm + '</td>';
+    h += '<td>' + lpl + '</td><td>' + lelp + '</td><td>' + dmult + '</td>';
+    h += '</tr>';
+  });
+  h += '</tbody></table></div></div>';
+
+  h += '<div id="hs-status" class="hs-status"></div>';
+  h += '</div>';
+
+  $o.innerHTML = h;
+  $o.querySelectorAll(".btn-update").forEach(function(btn){
+    btn.addEventListener("click", function(){ pushToHubSpot(this.getAttribute("data-plan"), this); });
+  });
+}
+
+function pushToHubSpot(planKey, btn) {
+  var dealId = (document.getElementById("hs-deal-id").value||"").trim();
+  var $st = document.getElementById("hs-status");
+  if (!dealId) { $st.className="hs-status error"; $st.textContent="Please enter a HubSpot Deal ID first."; document.getElementById("hs-deal-id").focus(); return; }
+  if (!lastPricing) { $st.className="hs-status error"; $st.textContent="No pricing data."; return; }
+  var planLabels = { elite_3m:"Elite — 3 Months", elite_6m:"Elite — 6 Months", elite_12m:"Elite — 12 Months", ep_3m:"Elite Plus — 3 Months", ep_6m:"Elite Plus — 6 Months", ep_12m:"Elite Plus — 12 Months" };
+  var subTypes   = { elite_3m:"Elite", elite_6m:"Elite", elite_12m:"Elite", ep_3m:"Elite Plus", ep_6m:"Elite Plus", ep_12m:"Elite Plus" };
+  var termMonths = { elite_3m:3, elite_6m:6, elite_12m:12, ep_3m:3, ep_6m:6, ep_12m:12 };
+  var payload = {
+    deal_id: dealId, plan_label: planLabels[planKey], amount: lastPricing[planKey],
+    elite_3m: lastPricing.elite_3m, elite_6m: lastPricing.elite_6m, elite_12m: lastPricing.elite_12m,
+    ep_3m: lastPricing.ep_3m, ep_6m: lastPricing.ep_6m, ep_12m: lastPricing.ep_12m,
+    listing_label: lastPricing.listingLabel, total_listings: lastPricing.totalListings, total_elps: lastPricing.totalElps,
+    province_summary: lastPricing.provinceSummary, price_country: lastPricing.countryLabel,
+    price_sub_type: subTypes[planKey], price_term_months: termMonths[planKey],
+    price_listings: lastPricing.listingLabel, price_additional_elps: lastPricing.totalElps,
+    price_province: lastPricing.provinceLabel,
+  };
+  var allBtns = document.querySelectorAll(".btn-update");
+  allBtns.forEach(function(b){ b.disabled=true; });
+  var orig = btn.innerHTML;
+  btn.innerHTML = "Sending…";
+  $st.className="hs-status loading"; $st.textContent="Updating deal " + dealId + "…";
+  fetch(N8N_WEBHOOK_URL, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload) })
+    .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json().catch(function(){ return {}; }); })
+    .then(function(){
+      $st.className="hs-status success";
+      $st.textContent="✓ Deal "+dealId+" updated — "+planLabels[planKey]+" ("+fmt(lastPricing[planKey])+") set as amount.";
+      btn.innerHTML="✓ Sent"; btn.classList.add("sent");
+      setTimeout(function(){ btn.innerHTML=orig; btn.classList.remove("sent"); }, 3000);
+      allBtns.forEach(function(b){ b.disabled=false; });
+    })
+    .catch(function(err){
+      $st.className="hs-status error"; $st.textContent="Error: "+err.message;
+      btn.innerHTML=orig; allBtns.forEach(function(b){ b.disabled=false; });
+    });
+}
+
+function showTab(btn, tabId) {
+  var box = btn.closest('.breakdown-card');
+  box.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  box.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+document.getElementById("btn-add").addEventListener("click", function(){ addRow(); });
+addRow("ES", "__whole__", 0, 0);
+</script>
+</body>
+</html>
