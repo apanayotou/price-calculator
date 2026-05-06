@@ -482,14 +482,14 @@ tr:last-child td { border-bottom: none; }
 <script>
 var N8N_WEBHOOK_URL = "https://james-edition.app.n8n.cloud/webhook/price-calculator-hs";
 
-var COUNTRY_NAMES = { AE:"UAE 🇦🇪", CH:"Switzerland 🇨🇭", ES:"Spain 🇪🇸", FR:"France 🇫🇷", GB:"United Kingdom 🇬🇧", GR:"Greece 🇬🇷", IT:"Italy 🇮🇹", PT:"Portugal 🇵🇹", US:"United States 🇺🇸", ZA:"South Africa 🇿🇦", Other:"Rest of the World 🌍" };
+var COUNTRY_NAMES = { FR:"France 🇫🇷", GR:"Greece 🇬🇷", IT:"Italy 🇮🇹", PT:"Portugal 🇵🇹", ES:"Spain 🇪🇸", CH:"Switzerland 🇨🇭", AE:"UAE 🇦🇪", GB:"United Kingdom 🇬🇧", US:"United States 🇺🇸", Other:"Rest of the World 🌍" };
 
 var ALL_DATA = {
   AE: [
-    { district:"Other", price_elite_5:115.13, price_elite_15:92.10,  price_elite_30:80.59,  price_elite_60:69.08,  price_elite_100:57.57, price_elp_3m:340.00 },
+    { district:"Other", price_elite_5:80.59,  price_elite_15:64.47,  price_elite_30:56.41,  price_elite_60:48.35,  price_elite_100:40.30, price_elp_3m:240.00 },
   ],
   CH: [
-    { district:"Other", price_elite_5:118.18, price_elite_15:94.54,  price_elite_30:82.73,  price_elite_60:70.91,  price_elite_100:59.09, price_elp_3m:425.00 },
+    { district:"Other", price_elite_5:82.73,  price_elite_15:66.18,  price_elite_30:57.91,  price_elite_60:49.64,  price_elite_100:41.36, price_elp_3m:298.00 },
   ],
   ES: [
     { district:"Alicante",  price_elite_5:19.59, price_elite_15:15.67, price_elite_30:13.71, price_elite_60:11.75, price_elite_100:9.79,  price_elp_3m:182.00 },
@@ -503,9 +503,9 @@ var ALL_DATA = {
     { district:"Other",     price_elite_5:22.39, price_elite_15:17.91, price_elite_30:15.67, price_elite_60:13.43, price_elite_100:11.19, price_elp_3m:159.00 },
   ],
   FR: [
-    { district:"Alpes-Maritimes", price_elite_5:49.70,  price_elite_15:39.76,  price_elite_30:34.79,  price_elite_60:29.82,  price_elite_100:24.85,  price_elp_3m:308.00 },
+    { district:"Alpes-Maritimes (Nice, Cannes)", price_elite_5:59.62,  price_elite_15:47.69,  price_elite_30:41.73,  price_elite_60:35.77,  price_elite_100:29.81,  price_elp_3m:369.00 },
     { district:"Paris",           price_elite_5:45.52,  price_elite_15:36.42,  price_elite_30:31.87,  price_elite_60:27.31,  price_elite_100:22.76,  price_elp_3m:282.00 },
-    { district:"Var",             price_elite_5:59.62,  price_elite_15:47.69,  price_elite_30:41.73,  price_elite_60:35.77,  price_elite_100:29.81,  price_elp_3m:369.00 },
+    { district:"Var (Saint-Tropez)",             price_elite_5:59.62,  price_elite_15:47.69,  price_elite_30:41.73,  price_elite_60:35.77,  price_elite_100:29.81,  price_elp_3m:369.00 },
     { district:"Other",           price_elite_5:32.29,  price_elite_15:25.84,  price_elite_30:22.61,  price_elite_60:19.38,  price_elite_100:16.15,  price_elp_3m:201.00 },
   ],
   GB: [
@@ -536,7 +536,7 @@ var ALL_DATA = {
     { district:"Other",                           price_elite_5:68.04,  price_elite_15:54.44, price_elite_30:47.63, price_elite_60:40.83, price_elite_100:34.02, price_elp_3m:225.00 },
   ],
   Other: [
-    { district:"Rest of the World", price_elite_5:12.49, price_elite_15:9.99, price_elite_30:8.75, price_elite_60:7.50, price_elite_100:6.25, price_elp_3m:195.00 },
+    { district:"Rest of the World", price_elite_5:48.42, price_elite_15:38.74, price_elite_30:33.89, price_elite_60:29.05, price_elite_100:24.21, price_elp_3m:205.00 },
   ],
   PT: [
     { district:"Cascais", price_elite_5:35.02, price_elite_15:28.01, price_elite_30:24.51, price_elite_60:21.01, price_elite_100:17.51, price_elp_3m:215.00 },
@@ -544,18 +544,16 @@ var ALL_DATA = {
     { district:"Other",   price_elite_5:20.56, price_elite_15:16.44, price_elite_30:14.39, price_elite_60:12.33, price_elite_100:10.28, price_elp_3m:131.00 },
   ],
   US: [
-    { district:"Los Angeles County", price_elite_5:134.21, price_elite_15:107.37, price_elite_30:93.95, price_elite_60:80.53, price_elite_100:67.10, price_elp_3m:1409.00 },
-    { district:"Miami-Dade County",  price_elite_5:55.92,  price_elite_15:44.74,  price_elite_30:39.15, price_elite_60:33.55, price_elite_100:27.96, price_elp_3m:587.00  },
-    { district:"New York County",    price_elite_5:71.58,  price_elite_15:57.26,  price_elite_30:50.10, price_elite_60:42.95, price_elite_100:35.79, price_elp_3m:835.00  },
-    { district:"Other",              price_elite_5:75.28,  price_elite_15:60.23,  price_elite_30:52.70, price_elite_60:45.17, price_elite_100:37.64, price_elp_3m:802.00  },
+    { district:"Los Angeles County", price_elite_5:93.95,  price_elite_15:75.16,  price_elite_30:65.76, price_elite_60:56.37, price_elite_100:46.97, price_elp_3m:986.00  },
+    { district:"Miami-Dade County",  price_elite_5:39.15,  price_elite_15:31.32,  price_elite_30:27.40, price_elite_60:23.49, price_elite_100:19.57, price_elp_3m:411.00  },
+    { district:"New York County",    price_elite_5:50.10,  price_elite_15:40.08,  price_elite_30:35.07, price_elite_60:30.06, price_elite_100:25.05, price_elp_3m:584.00  },
+    { district:"Other",              price_elite_5:52.70,  price_elite_15:42.16,  price_elite_30:36.89, price_elite_60:31.62, price_elite_100:26.35, price_elp_3m:562.00  },
   ],
-  ZA: [
-    { district:"Other", price_elite_5:41.23, price_elite_15:32.98, price_elite_30:28.86, price_elite_60:24.74, price_elite_100:20.61, price_elp_3m:148.00 },
-  ],
+
 }
 var COMPONENTS_DATA = {
-  AE:    { "Other": { median:5537741,  commission:0.015, leads_per_listing:0.4620, lead_per_elp_3m:1.4922, demand_multiplier:0.914 } },
-  CH:    { "Other": { median:3939329,  commission:0.020, leads_per_listing:0.5000, lead_per_elp_3m:2.0000, demand_multiplier:0.900 } },
+  AE:    { "Other": { median:5537741,  commission:0.015, leads_per_listing:0.4620, lead_per_elp_3m:1.4922, demand_multiplier:0.914, market_condition_factor:0.70 } },
+  CH:    { "Other": { median:3939329,  commission:0.020, leads_per_listing:0.5000, lead_per_elp_3m:2.0000, demand_multiplier:0.900, market_condition_factor:0.70 } },
   ES: {
     "Alicante":  { median:1295000, commission:0.03, leads_per_listing:0.1681, lead_per_elp_3m:1.2006, demand_multiplier:1.300 },
     "Barcelona": { median:1460000, commission:0.03, leads_per_listing:0.1681, lead_per_elp_3m:1.2006, demand_multiplier:0.900 },
@@ -568,9 +566,9 @@ var COMPONENTS_DATA = {
     "Other":     { median:1480077, commission:0.03, leads_per_listing:0.1681, lead_per_elp_3m:1.2006, demand_multiplier:0.991 },
   },
   FR: {
-    "Alpes-Maritimes": { median:2500000,  commission:0.03, leads_per_listing:0.2209, lead_per_elp_3m:1.5200, demand_multiplier:0.900 },
+    "Alpes-Maritimes (Nice, Cannes)": { median:2999000,  commission:0.03, leads_per_listing:0.2209, lead_per_elp_3m:1.5200, demand_multiplier:0.900 },
     "Paris":           { median:2290000,  commission:0.03, leads_per_listing:0.2209, lead_per_elp_3m:1.5200, demand_multiplier:0.900 },
-    "Var":             { median:2999000,  commission:0.03, leads_per_listing:0.2209, lead_per_elp_3m:1.5200, demand_multiplier:0.900 },
+    "Var (Saint-Tropez)":             { median:2999000,  commission:0.03, leads_per_listing:0.2209, lead_per_elp_3m:1.5200, demand_multiplier:0.900 },
     "Other":           { median:1624507,  commission:0.03, leads_per_listing:0.2209, lead_per_elp_3m:1.5200, demand_multiplier:0.905 },
   },
   GB: {
@@ -600,19 +598,19 @@ var COMPONENTS_DATA = {
     "Provincia Di Siena":              { median:1700000, commission:0.03, leads_per_listing:0.5791, lead_per_elp_3m:2.0913, demand_multiplier:0.900 },
     "Other":                           { median:1305507, commission:0.03, leads_per_listing:0.5791, lead_per_elp_3m:2.0913, demand_multiplier:0.914 },
   },
-  Other: { "Rest of the World": { median:2027876, commission:0.02, leads_per_listing:0.1027, lead_per_elp_3m:1.7125, demand_multiplier:0.934 } },
+  Other: { "Rest of the World": { median:2027876, commission:0.02, leads_per_listing:0.3980, lead_per_elp_3m:1.8051, demand_multiplier:0.934 } },
   PT: {
     "Cascais": { median:2200000, commission:0.03, leads_per_listing:0.1769, lead_per_elp_3m:1.2073, demand_multiplier:0.900 },
     "Lisbon":  { median:1380000, commission:0.03, leads_per_listing:0.1769, lead_per_elp_3m:1.2073, demand_multiplier:1.050 },
     "Other":   { median:1291487, commission:0.03, leads_per_listing:0.1769, lead_per_elp_3m:1.2073, demand_multiplier:0.930 },
   },
   US: {
-    "Los Angeles County": { median:8694480,  commission:0.03, leads_per_listing:0.1715, lead_per_elp_3m:2.0000, demand_multiplier:0.900 },
-    "Miami-Dade County":  { median:3622925,  commission:0.03, leads_per_listing:0.1715, lead_per_elp_3m:2.0000, demand_multiplier:0.900 },
-    "New York County":    { median:4637024,  commission:0.03, leads_per_listing:0.1715, lead_per_elp_3m:2.0000, demand_multiplier:1.000 },
-    "Other":              { median:4877174,  commission:0.03, leads_per_listing:0.1715, lead_per_elp_3m:2.0000, demand_multiplier:0.914 },
+    "Los Angeles County": { median:8694480,  commission:0.03, leads_per_listing:0.1715, lead_per_elp_3m:2.0000, demand_multiplier:0.900, market_condition_factor:0.70 },
+    "Miami-Dade County":  { median:3622925,  commission:0.03, leads_per_listing:0.1715, lead_per_elp_3m:2.0000, demand_multiplier:0.900, market_condition_factor:0.70 },
+    "New York County":    { median:4637024,  commission:0.03, leads_per_listing:0.1715, lead_per_elp_3m:2.0000, demand_multiplier:1.000, market_condition_factor:0.70 },
+    "Other":              { median:4877174,  commission:0.03, leads_per_listing:0.1715, lead_per_elp_3m:2.0000, demand_multiplier:0.914, market_condition_factor:0.70 },
   },
-  ZA:    { "Other": { median:916170, commission:0.030, leads_per_listing:0.5000, lead_per_elp_3m:2.0000, demand_multiplier:0.900 } },
+
 };
 var TIERS = [
   { label:"0",      count:0,   elps:0, priceKey:"price_elite_60"  },
@@ -684,7 +682,7 @@ function renderRows() {
     div.className = "config-row";
     var showX = rows.length > 1;
     var h = '<div><label class="field-label">Country</label><select class="sel-country" data-id="' + r.id + '">';
-    Object.keys(COUNTRY_NAMES).sort(function(a,b){ if(a==='Other') return 1; if(b==='Other') return -1; return a.localeCompare(b); }).forEach(function(k){ h += '<option value="' + k + '"' + (r.country===k?" selected":"") + '>' + COUNTRY_NAMES[k] + '</option>'; });
+    ['FR','GR','IT','PT','ES','CH','AE','GB','US','Other'].forEach(function(k){ if(!COUNTRY_NAMES[k]) return; h += '<option value="' + k + '"' + (r.country===k?" selected":"") + '>' + COUNTRY_NAMES[k] + '</option>'; });
     h += '</select></div>';
     h += '<div><label class="field-label">Region / Province</label><select class="sel-loc" data-id="' + r.id + '">' + buildDistrictOptions(r.country, r.loc) + '</select></div>';
     h += '<div><label class="field-label">Listings</label><select class="sel-tier" data-id="' + r.id + '">';
@@ -863,7 +861,7 @@ function render() {
   // Tab 2: Components
   h += '<div id="tab-components" class="tab-pane"><div class="tbl-wrap"><table><thead><tr>';
   h += '<th>Country</th><th>Region</th><th>Median Lead Value</th><th>Commission</th>';
-  h += '<th>Leads / Listing</th><th>Lead / ELP (3m)</th><th>Demand Mult.</th>';
+  h += '<th>Leads / Listing</th><th>Lead / ELP (3m)</th><th>Demand Mult.</th><th>Market Condition Multiplier</th>';
   h += '</tr></thead><tbody>';
   var seen = {};
   active.forEach(function(rc) {
@@ -878,12 +876,14 @@ function render() {
     var lpl   = cdata.leads_per_listing !== undefined ? cdata.leads_per_listing : '—';
     var lelp  = cdata.lead_per_elp_3m   !== undefined ? cdata.lead_per_elp_3m   : '—';
     var dmult = cdata.demand_multiplier  !== undefined ? cdata.demand_multiplier + '×' : '—';
+    var mcf   = cdata.market_condition_factor !== undefined ? cdata.market_condition_factor : 1.0;
+    var mcfStr = mcf !== 1.0 ? '<span style="color:var(--je-gold-dark);font-weight:600">' + mcf + '</span>' : mcf;
     var rl = rc.loc + (rc.source ? ' <span class="region-hint">(' + rc.source + ')</span>' : '');
     h += '<tr>';
     h += '<td>' + (COUNTRY_NAMES[rc.country]||rc.country) + '</td>';
     h += '<td>' + rl + '</td>';
     h += '<td>' + median + '</td><td>' + comm + '</td>';
-    h += '<td>' + lpl + '</td><td>' + lelp + '</td><td>' + dmult + '</td>';
+    h += '<td>' + lpl + '</td><td>' + lelp + '</td><td>' + dmult + '</td><td>' + mcfStr + '</td>';
     h += '</tr>';
   });
   h += '</tbody></table></div></div>';
