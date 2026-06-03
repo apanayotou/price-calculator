@@ -453,7 +453,7 @@ tr:last-child td { border-bottom: none; }
     </div>
     <span class="header-title">Price Calculator</span>
   </div>
-  <span class="header-meta">Data refreshed Apr 2026</span>
+  <span class="header-meta">Data refreshed Jun 2026</span>
 </header>
 
 <div class="wrap">
@@ -486,131 +486,121 @@ var COUNTRY_NAMES = { FR:"France 🇫🇷", GR:"Greece 🇬🇷", IT:"Italy 🇮
 
 var ALL_DATA = {
   AE: [
-    { district:"Other", price_elite_5:57.57,  price_elite_15:46.05,  price_elite_30:40.30,  price_elite_60:34.54,  price_elite_100:28.78, price_elp_3m:171.00 },
+    { district:"Other", price_elite_5:73.58, price_elite_15:58.86, price_elite_30:51.51, price_elite_60:44.15, price_elite_100:36.79, price_elite_150:33.11, price_elite_200:29.43, price_elite_150:26.62, price_elite_200:23.66, price_elite_150:10.03, price_elite_200:8.91, price_elite_150:9.57, price_elite_200:8.51, price_elite_150:9.2, price_elite_200:8.17, price_elite_150:7.86, price_elite_200:6.99, price_elite_150:17.35, price_elite_200:15.42, price_elite_150:11.5, price_elite_200:10.23, price_elite_150:35.58, price_elite_200:31.63, price_elp_3m:217.00 },
   ],
   CH: [
-    { district:"Other", price_elite_5:59.09,  price_elite_15:47.27,  price_elite_30:41.36,  price_elite_60:35.45,  price_elite_100:29.54, price_elp_3m:213.00 },
+    { district:"Other", price_elite_5:59.16, price_elite_15:47.33, price_elite_30:41.41, price_elite_60:35.49, price_elite_100:29.58, price_elp_3m:213.00 },
   ],
   ES: [
-    { district:"Alicante",  price_elite_5:19.59, price_elite_15:15.67, price_elite_30:13.71, price_elite_60:11.75, price_elite_100:9.79,  price_elp_3m:182.00 },
-    { district:"Barcelona", price_elite_5:22.09, price_elite_15:17.67, price_elite_30:15.46, price_elite_60:13.25, price_elite_100:11.04, price_elp_3m:142.00 },
-    { district:"Cádiz",     price_elite_5:34.04, price_elite_15:27.23, price_elite_30:23.82, price_elite_60:20.42, price_elite_100:17.02, price_elp_3m:219.00 },
-    { district:"Girona",    price_elite_5:22.31, price_elite_15:17.85, price_elite_30:15.62, price_elite_60:13.39, price_elite_100:11.16, price_elp_3m:155.00 },
-    { district:"Ibiza",     price_elite_5:48.41, price_elite_15:38.72, price_elite_30:33.88, price_elite_60:29.04, price_elite_100:24.20, price_elp_3m:311.00 },
-    { district:"Madrid",    price_elite_5:40.84, price_elite_15:32.67, price_elite_30:28.59, price_elite_60:24.51, price_elite_100:20.42, price_elp_3m:352.00 },
-    { district:"Mallorca",  price_elite_5:42.36, price_elite_15:33.88, price_elite_30:29.65, price_elite_60:25.41, price_elite_100:21.18, price_elp_3m:272.00 },
-    { district:"Málaga",    price_elite_5:40.09, price_elite_15:32.07, price_elite_30:28.06, price_elite_60:24.05, price_elite_100:20.04, price_elp_3m:274.00 },
-    { district:"Other",     price_elite_5:22.39, price_elite_15:17.91, price_elite_30:15.67, price_elite_60:13.43, price_elite_100:11.19, price_elp_3m:159.00 },
+    { district:"Alicante",  price_elite_5:20.26, price_elite_15:16.21, price_elite_30:14.18, price_elite_60:12.16, price_elite_100:10.13, price_elite_150:9.12, price_elite_200:8.11, price_elp_3m:196.00 },
+    { district:"Barcelona", price_elite_5:23.92, price_elite_15:19.14, price_elite_30:16.74, price_elite_60:14.35, price_elite_100:11.96, price_elite_150:10.76, price_elite_200:9.57, price_elp_3m:164.00 },
+    { district:"Cádiz",     price_elite_5:39.31, price_elite_15:31.45, price_elite_30:27.52, price_elite_60:23.58, price_elite_100:19.65, price_elite_150:17.69, price_elite_200:15.72, price_elp_3m:312.00 },
+    { district:"Girona",    price_elite_5:22.09, price_elite_15:17.67, price_elite_30:15.46, price_elite_60:13.26, price_elite_100:11.05, price_elite_150:9.94, price_elite_200:8.84, price_elp_3m:148.00 },
+    { district:"Ibiza",     price_elite_5:45.63, price_elite_15:36.50, price_elite_30:31.94, price_elite_60:27.38, price_elite_100:22.82, price_elite_150:20.53, price_elite_200:18.25, price_elp_3m:306.00 },
+    { district:"Madrid",    price_elite_5:43.50, price_elite_15:34.80, price_elite_30:30.45, price_elite_60:26.10, price_elite_100:21.75, price_elite_150:19.57, price_elite_200:17.4, price_elp_3m:406.00 },
+    { district:"Mallorca",  price_elite_5:39.61, price_elite_15:31.69, price_elite_30:27.73, price_elite_60:23.77, price_elite_100:19.81, price_elite_150:17.83, price_elite_200:15.85, price_elp_3m:265.00 },
+    { district:"Málaga",    price_elite_5:39.61, price_elite_15:31.69, price_elite_30:27.73, price_elite_60:23.77, price_elite_100:19.81, price_elite_150:17.83, price_elite_200:15.85, price_elp_3m:315.00 },
+    { district:"Other",     price_elite_5:22.28, price_elite_15:17.82, price_elite_30:15.60, price_elite_60:13.37, price_elite_100:11.14, price_elp_3m:180.00 },
   ],
   FR: [
-    { district:"Alpes-Maritimes (Nice, Cannes)", price_elite_5:39.75, price_elite_15:31.80, price_elite_30:27.82, price_elite_60:23.85, price_elite_100:19.87, price_elp_3m:246.00 },
-    { district:"Paris",                          price_elite_5:30.35, price_elite_15:24.28, price_elite_30:21.24, price_elite_60:18.21, price_elite_100:15.17, price_elp_3m:188.00 },
-    { district:"Var (Saint-Tropez)",             price_elite_5:39.75, price_elite_15:31.80, price_elite_30:27.82, price_elite_60:23.85, price_elite_100:19.87, price_elp_3m:246.00 },
-    { district:"Other",                          price_elite_5:21.53, price_elite_15:17.22, price_elite_30:15.07, price_elite_60:12.92, price_elite_100:10.76, price_elp_3m:134.00 },
+    { district:"Alpes-Maritimes (Nice, Cannes)", price_elite_5:32.84, price_elite_15:26.27, price_elite_30:22.99, price_elite_60:19.71, price_elite_100:16.42, price_elite_150:14.78, price_elite_200:13.14, price_elp_3m:209.00 },
+    { district:"Paris",                          price_elite_5:30.87, price_elite_15:24.70, price_elite_30:21.61, price_elite_60:18.52, price_elite_100:15.44, price_elite_150:13.89, price_elite_200:12.35, price_elp_3m:197.00 },
+    { district:"Var (Saint-Tropez)",             price_elite_5:41.38, price_elite_15:33.11, price_elite_30:28.97, price_elite_60:24.83, price_elite_100:20.69, price_elite_150:18.62, price_elite_200:16.55, price_elp_3m:264.00 },
+    { district:"Other",                          price_elite_5:21.27, price_elite_15:17.02, price_elite_30:14.89, price_elite_60:12.76, price_elite_100:10.64, price_elp_3m:137.00 },
   ],
   GB: [
-    { district:"Greater London", price_elite_5:56.34, price_elite_15:45.07, price_elite_30:39.44, price_elite_60:33.80, price_elite_100:28.17, price_elp_3m:358.00 },
-    { district:"Other",          price_elite_5:20.49, price_elite_15:16.39, price_elite_30:14.34, price_elite_60:12.29, price_elite_100:10.24, price_elp_3m:130.00 },
+    { district:"Greater London", price_elite_5:55.58, price_elite_15:44.46, price_elite_30:38.90, price_elite_60:33.35, price_elite_100:27.79, price_elite_150:25.01, price_elite_200:22.23, price_elp_3m:354.00 },
+    { district:"Other",          price_elite_5:20.44, price_elite_15:16.35, price_elite_30:14.31, price_elite_60:12.26, price_elite_100:10.22, price_elp_3m:130.00 },
   ],
   GR: [
-    { district:"Attica",          price_elite_5:19.22, price_elite_15:15.38, price_elite_30:13.46, price_elite_60:11.53, price_elite_100:9.61,  price_elp_3m:201.00 },
-    { district:"Crete",           price_elite_5:18.40, price_elite_15:14.72, price_elite_30:12.88, price_elite_60:11.04, price_elite_100:9.20,  price_elp_3m:233.00 },
-    { district:"Ionian Islands",  price_elite_5:24.99, price_elite_15:19.99, price_elite_30:17.49, price_elite_60:14.99, price_elite_100:12.49, price_elp_3m:204.00 },
-    { district:"Southern Aegean", price_elite_5:23.71, price_elite_15:18.97, price_elite_30:16.60, price_elite_60:14.22, price_elite_100:11.85, price_elp_3m:214.00 },
-    { district:"Other",           price_elite_5:17.91, price_elite_15:14.33, price_elite_30:12.54, price_elite_60:10.75, price_elite_100:8.96,  price_elp_3m:187.00 },
+    { district:"Attica",          price_elite_5:20.20, price_elite_15:16.16, price_elite_30:14.14, price_elite_60:12.12, price_elite_100:10.10, price_elite_150:9.09, price_elite_200:8.08, price_elp_3m:206.00 },
+    { district:"Crete",           price_elite_5:19.55, price_elite_15:15.64, price_elite_30:13.69, price_elite_60:11.73, price_elite_100: 9.78, price_elite_150:8.8, price_elite_200:7.82, price_elp_3m:199.00 },
+    { district:"Ionian Islands",  price_elite_5:25.81, price_elite_15:20.65, price_elite_30:18.07, price_elite_60:15.48, price_elite_100:12.90, price_elite_150:11.61, price_elite_200:10.32, price_elp_3m:263.00 },
+    { district:"Southern Aegean", price_elite_5:25.81, price_elite_15:20.65, price_elite_30:18.07, price_elite_60:15.48, price_elite_100:12.90, price_elite_150:11.61, price_elite_200:10.32, price_elp_3m:263.00 },
+    { district:"Other",           price_elite_5:17.47, price_elite_15:13.98, price_elite_30:12.23, price_elite_60:10.48, price_elite_100: 8.74, price_elp_3m:167.00 },
   ],
   IT: [
-    { district:"Metropolitan City Of Florence",   price_elite_5:55.50, price_elite_15:44.40, price_elite_30:38.85, price_elite_60:33.30, price_elite_100:27.75, price_elp_3m:229.00 },
-    { district:"Metropolitan City Of Milan",      price_elite_5:56.10, price_elite_15:44.88, price_elite_30:39.27, price_elite_60:33.66, price_elite_100:28.05, price_elp_3m:281.00 },
-    { district:"Metropolitan City Of Rome",       price_elite_5:51.60, price_elite_15:41.28, price_elite_30:36.12, price_elite_60:30.96, price_elite_100:25.80, price_elp_3m:179.00 },
-    { district:"Province Of Arezzo",              price_elite_5:37.50, price_elite_15:30.00, price_elite_30:26.25, price_elite_60:22.50, price_elite_100:18.75, price_elp_3m:187.00 },
-    { district:"Province Of Brescia",             price_elite_5:48.00, price_elite_15:38.40, price_elite_30:33.60, price_elite_60:28.80, price_elite_100:24.00, price_elp_3m:166.00 },
-    { district:"Province Of Como",                price_elite_5:44.70, price_elite_15:35.76, price_elite_30:31.29, price_elite_60:26.82, price_elite_100:22.35, price_elp_3m:155.00 },
-    { district:"Province Of Grosseto",            price_elite_5:48.00, price_elite_15:38.40, price_elite_30:33.60, price_elite_60:28.80, price_elite_100:24.00, price_elp_3m:213.00 },
-    { district:"Province Of Imperia",             price_elite_5:49.50, price_elite_15:39.60, price_elite_30:34.65, price_elite_60:29.70, price_elite_100:24.75, price_elp_3m:215.00 },
-    { district:"Province Of Lucca",               price_elite_5:58.50, price_elite_15:46.80, price_elite_30:40.95, price_elite_60:35.10, price_elite_100:29.25, price_elp_3m:293.00 },
-    { district:"Province Of Perugia",             price_elite_5:38.70, price_elite_15:30.96, price_elite_30:27.09, price_elite_60:23.22, price_elite_100:19.35, price_elp_3m:134.00 },
-    { district:"Province Of Sassari",             price_elite_5:47.10, price_elite_15:37.68, price_elite_30:32.97, price_elite_60:28.26, price_elite_100:23.55, price_elp_3m:163.00 },
-    { district:"Province Of Verbano-Cusio-Ossola",price_elite_5:66.00, price_elite_15:52.80, price_elite_30:46.20, price_elite_60:39.60, price_elite_100:33.00, price_elp_3m:331.00 },
-    { district:"Provincia Di Siena",              price_elite_5:57.00, price_elite_15:45.60, price_elite_30:39.90, price_elite_60:34.20, price_elite_100:28.50, price_elp_3m:245.00 },
-    { district:"Other",                           price_elite_5:38.40, price_elite_15:30.72, price_elite_30:26.88, price_elite_60:23.04, price_elite_100:19.20, price_elp_3m:133.00 },
+    { district:"Arezzo",   price_elite_5:39.00, price_elite_15:31.20, price_elite_30:27.30, price_elite_60:23.40, price_elite_100:19.50, price_elite_150:17.55, price_elite_200:15.6, price_elp_3m:163.00 },
+    { district:"Lazio",    price_elite_5:51.72, price_elite_15:41.38, price_elite_30:36.20, price_elite_60:31.03, price_elite_100:25.86, price_elite_150:23.27, price_elite_200:20.69, price_elp_3m:178.00 },
+    { district:"Liguria",  price_elite_5:52.50, price_elite_15:42.00, price_elite_30:36.75, price_elite_60:31.50, price_elite_100:26.25, price_elite_150:23.63, price_elite_200:21.0, price_elp_3m:230.00 },
+    { district:"Lombardy", price_elite_5:49.50, price_elite_15:39.60, price_elite_30:34.65, price_elite_60:29.70, price_elite_100:24.75, price_elite_150:22.28, price_elite_200:19.8, price_elp_3m:195.00 },
+    { district:"Piedmont", price_elite_5:69.00, price_elite_15:55.20, price_elite_30:48.30, price_elite_60:41.40, price_elite_100:34.50, price_elite_150:31.05, price_elite_200:27.6, price_elp_3m:293.00 },
+    { district:"Sardinia", price_elite_5:44.70, price_elite_15:35.76, price_elite_30:31.29, price_elite_60:26.82, price_elite_100:22.35, price_elite_150:20.11, price_elite_200:17.88, price_elp_3m:153.00 },
+    { district:"Tuscany",  price_elite_5:55.33, price_elite_15:44.26, price_elite_30:38.73, price_elite_60:33.20, price_elite_100:27.67, price_elite_150:24.9, price_elite_200:22.13, price_elp_3m:221.00 },
+    { district:"Umbria",   price_elite_5:37.50, price_elite_15:30.00, price_elite_30:26.25, price_elite_60:22.50, price_elite_100:18.75, price_elite_150:16.88, price_elite_200:15.0, price_elp_3m:129.00 },
+    { district:"Other",    price_elite_5:38.55, price_elite_15:30.84, price_elite_30:26.99, price_elite_60:23.13, price_elite_100:19.28, price_elp_3m:132.00 },
   ],
   Other: [
-    { district:"Rest of the World", price_elite_5:45.85, price_elite_15:36.68, price_elite_30:32.10, price_elite_60:27.51, price_elite_100:22.93, price_elp_3m:187.00 },
+    { district:"Rest of the World", price_elite_5:46.36, price_elite_15:37.08, price_elite_30:32.45, price_elite_60:27.81, price_elite_100:23.18, price_elite_150:20.86, price_elite_200:18.54, price_elp_3m:193.00 },
   ],
   PT: [
-    { district:"Cascais", price_elite_5:35.02, price_elite_15:28.01, price_elite_30:24.51, price_elite_60:21.01, price_elite_100:17.51, price_elp_3m:215.00 },
-    { district:"Lisbon",  price_elite_5:21.96, price_elite_15:17.57, price_elite_30:15.38, price_elite_60:13.18, price_elite_100:10.98, price_elp_3m:157.00 },
-    { district:"Other",   price_elite_5:20.56, price_elite_15:16.44, price_elite_30:14.39, price_elite_60:12.33, price_elite_100:10.28, price_elp_3m:131.00 },
+    { district:"Cascais", price_elite_5:42.25, price_elite_15:33.80, price_elite_30:29.58, price_elite_60:25.35, price_elite_100:21.13, price_elite_150:19.01, price_elite_200:16.9, price_elp_3m:306.00 },
+    { district:"Lisbon",  price_elite_5:25.08, price_elite_15:20.06, price_elite_30:17.56, price_elite_60:15.05, price_elite_100:12.54, price_elite_150:11.29, price_elite_200:10.03, price_elp_3m:205.00 },
+    { district:"Other",   price_elite_5:25.57, price_elite_15:20.45, price_elite_30:17.90, price_elite_60:15.34, price_elite_100:12.78, price_elp_3m:167.00 },
   ],
   US: [
-    { district:"Other", price_elite_5:69.24, price_elite_15:55.39, price_elite_30:48.47, price_elite_60:41.55, price_elite_100:34.62, price_elp_3m:845.00 },
+    { district:"Other", price_elite_5:79.08, price_elite_15:63.27, price_elite_30:55.36, price_elite_60:47.45, price_elite_100:39.54, price_elp_3m:899.00 },
   ],
 }
 var COMPONENTS_DATA = {
-  AE:    { "Other": { median:5537741,  commission:0.015, leads_per_listing:0.4620, lead_per_elp_3m:1.4922, demand_multiplier:0.920, conversion:0.015 } },
-  CH:    { "Other": { median:3939329,  commission:0.020, leads_per_listing:0.5000, lead_per_elp_3m:2.0000, demand_multiplier:0.900, conversion:0.015 } },
+  AE: { "Other": { median:5342019, commission:0.015, leads_per_listing:0.4591, lead_per_elp_3m:1.4525, demand_multiplier:0.931, conversion:0.02 } },
+  CH: { "Other": { median:3943817, commission:0.020, leads_per_listing:0.5000, lead_per_elp_3m:2.0000, demand_multiplier:0.900, conversion:0.015 } },
   ES: {
-    "Alicante":  { median:1290000,  commission:0.03, leads_per_listing:0.1658, lead_per_elp_3m:1.2836, demand_multiplier:1.300, conversion:0.03 },
-    "Barcelona": { median:1500000,  commission:0.03, leads_per_listing:0.1658, lead_per_elp_3m:1.2836, demand_multiplier:0.900, conversion:0.03 },
-    "Cádiz":     { median:2250000,  commission:0.03, leads_per_listing:0.1658, lead_per_elp_3m:1.2836, demand_multiplier:0.900, conversion:0.03 },
-    "Girona":    { median:1495000,  commission:0.03, leads_per_listing:0.1658, lead_per_elp_3m:1.2836, demand_multiplier:0.900, conversion:0.03 },
-    "Ibiza":     { median:2995000,  commission:0.03, leads_per_listing:0.1658, lead_per_elp_3m:1.2836, demand_multiplier:0.900, conversion:0.03 },
-    "Madrid":    { median:2855000,  commission:0.03, leads_per_listing:0.1658, lead_per_elp_3m:1.2836, demand_multiplier:1.187, conversion:0.03 },
-    "Mallorca":  { median:2700000,  commission:0.03, leads_per_listing:0.1658, lead_per_elp_3m:1.2836, demand_multiplier:0.900, conversion:0.03 },
-    "Málaga":    { median:2650000,  commission:0.03, leads_per_listing:0.1658, lead_per_elp_3m:1.2836, demand_multiplier:1.064, conversion:0.03 },
-    "Other":     { median:1462831,  commission:0.03, leads_per_listing:0.1658, lead_per_elp_3m:1.2836, demand_multiplier:1.085, conversion:0.03 },
+    "Alicante":  { median:1330000, commission:0.03, leads_per_listing:0.1693, lead_per_elp_3m:1.2594, demand_multiplier:1.300, conversion:0.03 },
+    "Barcelona": { median:1570000, commission:0.03, leads_per_listing:0.1693, lead_per_elp_3m:1.2594, demand_multiplier:0.922, conversion:0.03 },
+    "Cádiz":     { median:2580000, commission:0.03, leads_per_listing:0.1693, lead_per_elp_3m:1.2594, demand_multiplier:1.067, conversion:0.03 },
+    "Girona":    { median:1450000, commission:0.03, leads_per_listing:0.1693, lead_per_elp_3m:1.2594, demand_multiplier:0.900, conversion:0.03 },
+    "Ibiza":     { median:2995000, commission:0.03, leads_per_listing:0.1693, lead_per_elp_3m:1.2594, demand_multiplier:0.900, conversion:0.03 },
+    "Madrid":    { median:2855000, commission:0.03, leads_per_listing:0.1693, lead_per_elp_3m:1.2594, demand_multiplier:1.255, conversion:0.03 },
+    "Mallorca":  { median:2600000, commission:0.03, leads_per_listing:0.1693, lead_per_elp_3m:1.2594, demand_multiplier:0.900, conversion:0.03 },
+    "Málaga":    { median:2600000, commission:0.03, leads_per_listing:0.1693, lead_per_elp_3m:1.2594, demand_multiplier:1.069, conversion:0.03 },
+    "Other":     { median:1462359, commission:0.03, leads_per_listing:0.1693, lead_per_elp_3m:1.2594, demand_multiplier:1.085, conversion:0.03 },
   },
   FR: {
-    "Alpes-Maritimes (Nice, Cannes)": { median:2500000, commission:0.03, leads_per_listing:0.2209, lead_per_elp_3m:1.5200, demand_multiplier:0.900, conversion:0.02 },
-    "Paris":                          { median:2290000, commission:0.03, leads_per_listing:0.2209, lead_per_elp_3m:1.5200, demand_multiplier:0.900, conversion:0.02 },
-    "Var (Saint-Tropez)":             { median:2999000, commission:0.03, leads_per_listing:0.2209, lead_per_elp_3m:1.5200, demand_multiplier:0.900, conversion:0.02 },
-    "Other":                          { median:1624507, commission:0.03, leads_per_listing:0.2209, lead_per_elp_3m:1.5200, demand_multiplier:0.905, conversion:0.02 },
+    "Alpes-Maritimes (Nice, Cannes)": { median:2500000, commission:0.03, leads_per_listing:0.2190, lead_per_elp_3m:1.5505, demand_multiplier:0.900, conversion:0.02 },
+    "Paris":                          { median:2350000, commission:0.03, leads_per_listing:0.2190, lead_per_elp_3m:1.5505, demand_multiplier:0.900, conversion:0.02 },
+    "Var (Saint-Tropez)":             { median:3150000, commission:0.03, leads_per_listing:0.2190, lead_per_elp_3m:1.5505, demand_multiplier:0.900, conversion:0.02 },
+    "Other":                          { median:1619119, commission:0.03, leads_per_listing:0.2190, lead_per_elp_3m:1.5505, demand_multiplier:0.906, conversion:0.02 },
   },
   GB: {
-    "Greater London": { median:5096533,  commission:0.013, leads_per_listing:0.2834, lead_per_elp_3m:2.0000, demand_multiplier:0.900, conversion:0.03 },
-    "Other":          { median:1853464,  commission:0.013, leads_per_listing:0.2834, lead_per_elp_3m:2.0000, demand_multiplier:0.900, conversion:0.03 },
+    "Greater London": { median:5044829, commission:0.013, leads_per_listing:0.2825, lead_per_elp_3m:2.0000, demand_multiplier:0.900, conversion:0.03 },
+    "Other":          { median:1855088, commission:0.013, leads_per_listing:0.2825, lead_per_elp_3m:2.0000, demand_multiplier:0.900, conversion:0.03 },
   },
   GR: {
-    "Attica":          { median:1550000,  commission:0.03, leads_per_listing:0.1363, lead_per_elp_3m:1.3260, demand_multiplier:1.300, conversion:0.03 },
-    "Crete":           { median:1500000,  commission:0.03, leads_per_listing:0.1363, lead_per_elp_3m:1.3260, demand_multiplier:1.300, conversion:0.03 },
-    "Ionian Islands":  { median:1950000,  commission:0.03, leads_per_listing:0.1363, lead_per_elp_3m:1.3260, demand_multiplier:1.300, conversion:0.03 },
-    "Southern Aegean": { median:1925000,  commission:0.03, leads_per_listing:0.1363, lead_per_elp_3m:1.3260, demand_multiplier:1.300, conversion:0.03 },
-    "Other":           { median:1396629,  commission:0.03, leads_per_listing:0.1363, lead_per_elp_3m:1.3260, demand_multiplier:1.300, conversion:0.03 },
+    "Attica":          { median:1550000, commission:0.03, leads_per_listing:0.1448, lead_per_elp_3m:1.1349, demand_multiplier:1.300, conversion:0.03 },
+    "Crete":           { median:1500000, commission:0.03, leads_per_listing:0.1448, lead_per_elp_3m:1.1349, demand_multiplier:1.300, conversion:0.03 },
+    "Ionian Islands":  { median:1980000, commission:0.03, leads_per_listing:0.1448, lead_per_elp_3m:1.1349, demand_multiplier:1.300, conversion:0.03 },
+    "Southern Aegean": { median:1980000, commission:0.03, leads_per_listing:0.1448, lead_per_elp_3m:1.1349, demand_multiplier:1.300, conversion:0.03 },
+    "Other":           { median:1340599, commission:0.03, leads_per_listing:0.1448, lead_per_elp_3m:1.1349, demand_multiplier:1.219, conversion:0.03 },
   },
   IT: {
-    "Metropolitan City Of Florence":   { median:1850000, commission:0.03, leads_per_listing:0.5000, lead_per_elp_3m:1.9271, demand_multiplier:1.069, conversion:0.02 },
-    "Metropolitan City Of Milan":      { median:1870000, commission:0.03, leads_per_listing:0.5000, lead_per_elp_3m:1.9271, demand_multiplier:1.300, conversion:0.02 },
-    "Metropolitan City Of Rome":       { median:1720000, commission:0.03, leads_per_listing:0.5000, lead_per_elp_3m:1.9271, demand_multiplier:0.900, conversion:0.02 },
-    "Province Of Arezzo":              { median:1250000, commission:0.03, leads_per_listing:0.5000, lead_per_elp_3m:1.9271, demand_multiplier:1.293, conversion:0.02 },
-    "Province Of Brescia":             { median:1600000, commission:0.03, leads_per_listing:0.5000, lead_per_elp_3m:1.9271, demand_multiplier:0.900, conversion:0.02 },
-    "Province Of Como":                { median:1490000, commission:0.03, leads_per_listing:0.5000, lead_per_elp_3m:1.9271, demand_multiplier:0.900, conversion:0.02 },
-    "Province Of Grosseto":            { median:1600000, commission:0.03, leads_per_listing:0.5000, lead_per_elp_3m:1.9271, demand_multiplier:1.153, conversion:0.02 },
-    "Province Of Imperia":             { median:1650000, commission:0.03, leads_per_listing:0.5000, lead_per_elp_3m:1.9271, demand_multiplier:1.127, conversion:0.02 },
-    "Province Of Lucca":               { median:1950000, commission:0.03, leads_per_listing:0.5000, lead_per_elp_3m:1.9271, demand_multiplier:1.300, conversion:0.02 },
-    "Province Of Perugia":             { median:1290000, commission:0.03, leads_per_listing:0.5000, lead_per_elp_3m:1.9271, demand_multiplier:0.900, conversion:0.02 },
-    "Province Of Sassari":             { median:1570000, commission:0.03, leads_per_listing:0.5000, lead_per_elp_3m:1.9271, demand_multiplier:0.900, conversion:0.02 },
-    "Province Of Verbano-Cusio-Ossola":{ median:2200000, commission:0.03, leads_per_listing:0.5000, lead_per_elp_3m:1.9271, demand_multiplier:1.300, conversion:0.02 },
-    "Provincia Di Siena":              { median:1900000, commission:0.03, leads_per_listing:0.5000, lead_per_elp_3m:1.9271, demand_multiplier:1.117, conversion:0.02 },
-    "Other":                           { median:1280000, commission:0.03, leads_per_listing:0.5000, lead_per_elp_3m:1.9271, demand_multiplier:0.900, conversion:0.02 },
+    "Arezzo":   { median:1300000, commission:0.03, leads_per_listing:0.5000, lead_per_elp_3m:1.9075, demand_multiplier:1.097, conversion:0.02 },
+    "Lazio":    { median:1724000, commission:0.03, leads_per_listing:0.5000, lead_per_elp_3m:1.9075, demand_multiplier:0.900, conversion:0.02 },
+    "Liguria":  { median:1750000, commission:0.03, leads_per_listing:0.5000, lead_per_elp_3m:1.9075, demand_multiplier:1.146, conversion:0.02 },
+    "Lombardy": { median:1650031, commission:0.03, leads_per_listing:0.5000, lead_per_elp_3m:1.9075, demand_multiplier:1.031, conversion:0.02 },
+    "Piedmont": { median:2300000, commission:0.03, leads_per_listing:0.5000, lead_per_elp_3m:1.9075, demand_multiplier:1.114, conversion:0.02 },
+    "Sardinia": { median:1490000, commission:0.03, leads_per_listing:0.5000, lead_per_elp_3m:1.9075, demand_multiplier:0.900, conversion:0.02 },
+    "Tuscany":  { median:1844353, commission:0.03, leads_per_listing:0.5000, lead_per_elp_3m:1.9075, demand_multiplier:1.048, conversion:0.02 },
+    "Umbria":   { median:1250000, commission:0.03, leads_per_listing:0.5000, lead_per_elp_3m:1.9075, demand_multiplier:0.900, conversion:0.02 },
+    "Other":    { median:1285000, commission:0.03, leads_per_listing:0.5000, lead_per_elp_3m:1.9075, demand_multiplier:0.900, conversion:0.02 },
   },
-  Other: { "Rest of the World": { median:1841366, commission:0.02, leads_per_listing:0.4150, lead_per_elp_3m:1.8191, demand_multiplier:0.928, conversion:0.02 } },
+  Other: { "Rest of the World": { median:1865817, commission:0.03, leads_per_listing:0.4141, lead_per_elp_3m:1.8451, demand_multiplier:0.936, conversion:0.02 } },
   PT: {
-    "Cascais": { median:2200000,  commission:0.03, leads_per_listing:0.2084, lead_per_elp_3m:1.2652, demand_multiplier:1.001, conversion:0.03 },
-    "Lisbon":  { median:1350000,  commission:0.03, leads_per_listing:0.2084, lead_per_elp_3m:1.2652, demand_multiplier:1.173, conversion:0.03 },
-    "Other":   { median:1314203,  commission:0.03, leads_per_listing:0.2084, lead_per_elp_3m:1.2652, demand_multiplier:0.986, conversion:0.03 },
+    "Cascais": { median:2190000, commission:0.03, leads_per_listing:0.2144, lead_per_elp_3m:1.3452, demand_multiplier:1.153, conversion:0.03 },
+    "Lisbon":  { median:1300000, commission:0.03, leads_per_listing:0.2144, lead_per_elp_3m:1.3452, demand_multiplier:1.300, conversion:0.03 },
+    "Other":   { median:1325163, commission:0.03, leads_per_listing:0.2144, lead_per_elp_3m:1.3452, demand_multiplier:1.043, conversion:0.03 },
   },
-  US: {
-    "Other": { median:5038836, commission:0.03, leads_per_listing:0.1527, lead_per_elp_3m:2.0000, demand_multiplier:0.914, conversion:0.03 },
-  },
+  US: { "Other": { median:4790234, commission:0.03, leads_per_listing:0.1638, lead_per_elp_3m:2.0000, demand_multiplier:0.932, conversion:0.03 } },
 };
 var TIERS = [
-  { label:"0",      count:0,   elps:0, priceKey:"price_elite_60"  },
-  { label:"1–5",    count:5,   elps:1, priceKey:"price_elite_5"   },
-  { label:"6–15",   count:15,  elps:2, priceKey:"price_elite_15"  },
-  { label:"16–30",  count:30,  elps:3, priceKey:"price_elite_30"  },
-  { label:"31–60",  count:60,  elps:5, priceKey:"price_elite_60"  },
-  { label:"61–100", count:100, elps:7, priceKey:"price_elite_100" },
+  { label:"0",        count:0,   elps:0,  priceKey:"price_elite_60"  },
+  { label:"1–5",      count:5,   elps:1,  priceKey:"price_elite_5"   },
+  { label:"6–15",     count:15,  elps:2,  priceKey:"price_elite_15"  },
+  { label:"16–30",    count:30,  elps:3,  priceKey:"price_elite_30"  },
+  { label:"31–60",    count:60,  elps:5,  priceKey:"price_elite_60"  },
+  { label:"61–100",   count:100, elps:7,  priceKey:"price_elite_100" },
+  { label:"101–150",  count:150, elps:10, priceKey:"price_elite_150" },
+  { label:"151–200",  count:200, elps:15, priceKey:"price_elite_200" },
 ];
 
 var rows = [], nextId = 0, lastPricing = null;
@@ -643,7 +633,7 @@ function getDistrictData(cc, loc) {
 function addRow(cc, loc, ti, elps) {
   var id = nextId++;
   ti = ti || 0;
-  rows.push({ id: id, country: cc || "ES", loc: loc || "__whole__", tierIdx: ti, elps: elps != null ? elps : Math.max(1, TIERS[ti].elps) });
+  rows.push({ id: id, country: cc || "ES", loc: loc || "__whole__", tierIdx: ti, elps: elps != null ? elps : 0 });
   renderRows(); render();
 }
 
@@ -684,7 +674,7 @@ function renderRows() {
     });
     h += '</select></div>';
     h += '<div><label class="field-label">ELPs</label><select class="sel-elps" data-id="' + r.id + '">';
-    for (var j = 1; j <= 20; j++) h += '<option value="' + j + '"' + (r.elps===j?" selected":"") + '>' + j + '</option>';
+    var elpMin = (rows.indexOf(r) === 0) ? 1 : 0; for (var j = elpMin; j <= 20; j++) h += '<option value="' + j + '"' + (r.elps===j?" selected":"") + '>' + j + '</option>';
     h += '</select></div>';
     h += showX ? '<button class="btn-remove" data-id="' + r.id + '" style="align-self:end">×</button>' : '<div></div>';
     div.innerHTML = h;
@@ -759,6 +749,10 @@ function render() {
   var epS6=Math.max(ep3*2-ep6,0), epS12=Math.max(ep3*4-ep12,0);
 
   var active = rowCalcs.filter(function(r){ return r; });
+  var allUS = active.length > 0 && active.every(function(rc){ return rc.country === 'US'; });
+  var sym = allUS ? '$' : '€';
+  var fmtC = function(v) { return sym + v.toLocaleString("en-US"); };
+  var fmtDecC = function(v) { return sym + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","); };
   var tierLabels = active.map(function(r){ return r.tier.label; }).join(" + ") + " Listings";
   var provinceSummary = active.map(function(rc){ return (COUNTRY_NAMES[rc.country]||rc.country) + " — " + rc.loc + (rc.source?" ("+rc.source+")":"") + ": " + rc.tier.label + " listings, " + rc.elps + " ELPs"; }).join("\n");
   var provinceLabel = active.map(function(rc){ return rc.loc; }).join(", ");
@@ -788,9 +782,9 @@ function render() {
   h += '<div class="card-header"><div class="card-type">Subscription</div><div class="card-name">Elite</div><div class="card-sub">' + tierLabels + '</div><div class="card-sub" style="visibility:hidden">_</div></div>';
   periods.forEach(function(p, i){
     h += '<div class="period-row"><div class="period-name">' + p.label + '</div>';
-    if (p.eS > 0) h += '<div><span class="save-badge teal">Save ' + fmt(p.eS) + '</span></div>';
-    h += '<div class="price-amount">' + fmt(p.eT) + '</div>';
-    h += '<div class="price-monthly">' + fmtDec(p.eT/p.mo) + ' / month</div>';
+    if (p.eS > 0) h += '<div><span class="save-badge teal">Save ' + fmtC(p.eS) + '</span></div>';
+    h += '<div class="price-amount">' + fmtC(p.eT) + '</div>';
+    h += '<div class="price-monthly">' + fmtDecC(p.eT/p.mo) + ' / month</div>';
     h += '<button class="btn-update" data-plan="' + planKeys[i] + '">' + hsIcon + 'Update Deal</button>';
     h += '</div>';
   });
@@ -801,9 +795,9 @@ function render() {
   h += '<div class="card-header elite-plus-header"><span class="badge-rec">Recommended</span><div class="card-type">Subscription + Promoted Listings</div><div class="card-name">Elite Plus</div><div class="card-sub">' + tierLabels + '</div><div class="card-elp">' + totalElps + ' Promoted Listing' + (totalElps!==1?'s':'') + '</div></div>';
   periods.forEach(function(p, i){
     h += '<div class="period-row elite-plus-row"><div class="period-name">' + p.label + '</div>';
-    if (p.epS > 0) h += '<div><span class="save-badge gold">Save ' + fmt(p.epS) + '</span></div>';
-    h += '<div class="price-amount">' + fmt(p.epT) + '</div>';
-    h += '<div class="price-monthly">' + fmtDec(p.epT/p.mo) + ' / month</div>';
+    if (p.epS > 0) h += '<div><span class="save-badge gold">Save ' + fmtC(p.epS) + '</span></div>';
+    h += '<div class="price-amount">' + fmtC(p.epT) + '</div>';
+    h += '<div class="price-monthly">' + fmtDecC(p.epT/p.mo) + ' / month</div>';
     h += '<button class="btn-update" data-plan="' + epKeys[i] + '">' + hsIcon + 'Update Deal</button>';
     h += '</div>';
   });
@@ -815,7 +809,6 @@ function render() {
   h += '<div class="breakdown-card">';
   h += '<div class="tab-bar">';
   h += '<button class="tab-btn active" onclick="showTab(this,\'tab-prices\')">Prices</button>';
-  h += '<button class="tab-btn" onclick="showTab(this,\'tab-components\')">Components</button>';
   h += '</div>';
 
   // Tab 1: Prices
@@ -838,14 +831,14 @@ function render() {
     h += '<td>' + (COUNTRY_NAMES[rc.country]||rc.country) + '</td>';
     h += '<td>' + rl + '</td>';
     h += '<td>' + rc.tier.label + '</td><td>' + rc.elps + '</td>';
-    h += '<td>'+fmt(te3)+'</td><td>'+fmt(te6)+'</td><td>'+fmt(te12)+'</td>';
-    h += '<td>'+fmt(tep3)+'</td><td>'+fmt(tep6)+'</td><td>'+fmt(tep12)+'</td>';
+    h += '<td>'+fmtC(te3)+'</td><td>'+fmtC(te6)+'</td><td>'+fmtC(te12)+'</td>';
+    h += '<td>'+fmtC(tep3)+'</td><td>'+fmtC(tep6)+'</td><td>'+fmtC(tep12)+'</td>';
     h += '</tr>';
   });
   if (active.length > 1) {
     h += '<tr class="total-row"><td colspan="2">Total</td><td>'+totalListings+'</td><td>'+totalElps+'</td>';
-    h += '<td>'+fmt(e3)+'</td><td>'+fmt(e6)+'</td><td>'+fmt(e12)+'</td>';
-    h += '<td>'+fmt(ep3)+'</td><td>'+fmt(ep6)+'</td><td>'+fmt(ep12)+'</td>';
+    h += '<td>'+fmtC(e3)+'</td><td>'+fmtC(e6)+'</td><td>'+fmtC(e12)+'</td>';
+    h += '<td>'+fmtC(ep3)+'</td><td>'+fmtC(ep6)+'</td><td>'+fmtC(ep12)+'</td>';
     h += '</tr>';
   }
   h += '</tbody></table></div></div>';
@@ -936,7 +929,7 @@ function showTab(btn, tabId) {
 }
 
 document.getElementById("btn-add").addEventListener("click", function(){ addRow(); });
-addRow("ES", "__whole__", 0, 0);
+addRow("ES", "__whole__", 0, 1);
 </script>
 </body>
 </html>
