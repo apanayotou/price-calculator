@@ -750,6 +750,7 @@ function render() {
 
   var active = rowCalcs.filter(function(r){ return r; });
   var allUS = active.length > 0 && active.every(function(rc){ return rc.country === 'US'; });
+  var has1to5 = active.some(function(rc){ return rc.cnt === 5; });
   var sym = allUS ? '$' : '€';
   var fmtC = function(v) { return sym + v.toLocaleString("en-US"); };
   var fmtDecC = function(v) { return sym + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","); };
@@ -781,11 +782,20 @@ function render() {
   h += '<div class="pricing-card">';
   h += '<div class="card-header"><div class="card-type">Subscription</div><div class="card-name">Elite</div><div class="card-sub">' + tierLabels + '</div><div class="card-sub" style="visibility:hidden">_</div></div>';
   periods.forEach(function(p, i){
-    h += '<div class="period-row"><div class="period-name">' + p.label + '</div>';
-    if (p.eS > 0) h += '<div><span class="save-badge teal">Save ' + fmtC(p.eS) + '</span></div>';
-    h += '<div class="price-amount">' + fmtC(p.eT) + '</div>';
-    h += '<div class="price-monthly">' + fmtDecC(p.eT/p.mo) + ' / month</div>';
-    h += '<button class="btn-update" data-plan="' + planKeys[i] + '">' + hsIcon + 'Update Deal</button>';
+    var eliteDisabled = (i === 0 && has1to5);
+    h += '<div class="period-row' + (eliteDisabled ? ' period-row--disabled' : '') + '">';
+    h += '<div class="period-name">' + p.label + '</div>';
+    if (eliteDisabled) {
+      h += '<div style="font-size:11px;color:var(--je-muted-gray);margin-bottom:6px">Not available for 1–5 listings</div>';
+      h += '<div class="price-amount" style="color:var(--je-muted-gray)">—</div>';
+      h += '<div class="price-monthly">&nbsp;</div>';
+      h += '<button class="btn-update" disabled style="opacity:0.4;cursor:not-allowed">Update Deal</button>';
+    } else {
+      if (p.eS > 0) h += '<div><span class="save-badge teal">Save ' + fmtC(p.eS) + '</span></div>';
+      h += '<div class="price-amount">' + fmtC(p.eT) + '</div>';
+      h += '<div class="price-monthly">' + fmtDecC(p.eT/p.mo) + ' / month</div>';
+      h += '<button class="btn-update" data-plan="' + planKeys[i] + '">' + hsIcon + 'Update Deal</button>';
+    }
     h += '</div>';
   });
   h += '</div>';
