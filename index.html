@@ -750,7 +750,9 @@ function render() {
 
   var active = rowCalcs.filter(function(r){ return r; });
   var allUS = active.length > 0 && active.every(function(rc){ return rc.country === 'US'; });
-  var has1to5 = active.some(function(rc){ return rc.cnt === 5; });
+  var has1to5  = active.some(function(rc){ return rc.cnt === 5; });
+  var has6to15 = active.some(function(rc){ return rc.cnt === 15; });
+  var disable3m = has1to5 || has6to15;
   var sym = allUS ? '$' : '€';
   var fmtC = function(v) { return sym + v.toLocaleString("en-US"); };
   var fmtDecC = function(v) { return sym + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","); };
@@ -782,7 +784,7 @@ function render() {
   h += '<div class="pricing-card">';
   h += '<div class="card-header"><div class="card-type">Subscription</div><div class="card-name">Elite</div><div class="card-sub">' + tierLabels + '</div><div class="card-sub" style="visibility:hidden">_</div></div>';
   periods.forEach(function(p, i){
-    var eliteDisabled = (i === 0 && has1to5);
+    var eliteDisabled = (i === 0 && disable3m);
     h += '<div class="period-row' + (eliteDisabled ? ' period-row--disabled' : '') + '">';
     h += '<div class="period-name">' + p.label + '</div>';
     if (eliteDisabled) {
@@ -804,11 +806,20 @@ function render() {
   h += '<div class="pricing-card elite-plus">';
   h += '<div class="card-header elite-plus-header"><span class="badge-rec">Recommended</span><div class="card-type">Subscription + Promoted Listings</div><div class="card-name">Elite Plus</div><div class="card-sub">' + tierLabels + '</div><div class="card-elp">' + totalElps + ' Promoted Listing' + (totalElps!==1?'s':'') + '</div></div>';
   periods.forEach(function(p, i){
-    h += '<div class="period-row elite-plus-row"><div class="period-name">' + p.label + '</div>';
-    if (p.epS > 0) h += '<div><span class="save-badge gold">Save ' + fmtC(p.epS) + '</span></div>';
-    h += '<div class="price-amount">' + fmtC(p.epT) + '</div>';
-    h += '<div class="price-monthly">' + fmtDecC(p.epT/p.mo) + ' / month</div>';
-    h += '<button class="btn-update" data-plan="' + epKeys[i] + '">' + hsIcon + 'Update Deal</button>';
+    var epDisabled = (i === 0 && disable3m);
+    h += '<div class="period-row elite-plus-row">';
+    h += '<div class="period-name">' + p.label + '</div>';
+    if (epDisabled) {
+      h += '<div style="font-size:11px;color:var(--je-muted-gray);margin-bottom:6px">Not available for ' + (has1to5 ? '1–5' : '6–15') + ' listings</div>';
+      h += '<div class="price-amount" style="color:var(--je-muted-gray)">—</div>';
+      h += '<div class="price-monthly">&nbsp;</div>';
+      h += '<button class="btn-update" disabled style="opacity:0.4;cursor:not-allowed">Update Deal</button>';
+    } else {
+      if (p.epS > 0) h += '<div><span class="save-badge gold">Save ' + fmtC(p.epS) + '</span></div>';
+      h += '<div class="price-amount">' + fmtC(p.epT) + '</div>';
+      h += '<div class="price-monthly">' + fmtDecC(p.epT/p.mo) + ' / month</div>';
+      h += '<button class="btn-update" data-plan="' + epKeys[i] + '">' + hsIcon + 'Update Deal</button>';
+    }
     h += '</div>';
   });
   h += '</div>';
