@@ -900,8 +900,8 @@ function render() {
     h += '<div class="pricing-card classic">';
     h += '<div class="card-header"><div class="card-type">Subscription</div><div class="card-name">Classic</div><div class="card-sub">' + tierLabels + '</div><div class="card-sub" style="visibility:hidden">_</div></div>';
     periods.forEach(function(p, i){
-      var cT = Math.round(p.eT / 3);
-      var cS = Math.round(p.eS / 3);
+      var cT = psych(p.eT / 3);
+      var cS = psych(p.eS / 3);
       h += '<div class="period-row">';
       h += '<div class="period-name">' + p.label + '</div>';
       if (cS > 0) h += '<div><span class="save-badge teal">Save ' + fmtC(cS) + '</span></div>';
